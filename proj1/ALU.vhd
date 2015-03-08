@@ -122,7 +122,16 @@ begin
 	);
 	
 
-
+	with sel(4 downto 3) select flagsout <=
+		flagsarith when "00",
+		flagsshift when "01",
+		flagslogic when others;
+		
+	with sel(4 downto 3) select C <=
+		arithOut when "00",
+		shiftOut when "01",
+		logicOut when others;
+		
 
 
 end Behavioral;

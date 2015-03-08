@@ -44,12 +44,15 @@ end ArithU;
 	
 architecture Behavioral of ArithU is
 
-	signal aux1,aux2,aux3,aux4,aux5,aux6, bufferaout: std_logic_vector(15 downto 0);
+	signal auxA1, auxB1: std_logic_vector(16 downto 0);
+	signal aux1,aux2,aux3,aux4,aux5,aux6, bufferout: std_logic_vector(16 downto 0);
 	signal bufferflags: std_logic_vector(3 downto 0);
 	signal flag1,flag2,flag3,flag0: std_logic;
 
 
 begin
+
+
 
 	aux1 <= A1+B1;
 	aux2 <= A1+B1+1;
@@ -59,7 +62,7 @@ begin
 	aux6 <= A1-1;
 
 
-	with sel(2 downto 0) select bufferaout <=
+	with sel(2 downto 0) select bufferout <=
 		aux1 when "000",
 		aux2 when "001",
 		aux3 when "011",		
@@ -67,17 +70,17 @@ begin
 		aux5 when "101",
 		aux6 when "110";
 	
-	flag1 <= not( bufferaout(15) or bufferaout(14) or bufferaout(13) or bufferaout(12) or bufferaout(11) or bufferaout(10) or bufferaout(9) or bufferaout(8) or bufferaout(7) or bufferaout(6) or bufferaout(5) or bufferaout(4) or bufferaout(3) or bufferaout(2) or bufferaout(1) or bufferaout(0) );
-	flag3 <= bufferaout(15);
-
-
-
-	--faltam flags carry e overflow......................................................................................
+	with sel(2) select flag0 <=
+		(((A1(15) nor B1(15)) and bufferout(15)) or ((A1(15) and B1(15)) and (not bufferout(15)) )) when '0',
+		((((not A1(15)) and B1(15)) and bufferout(15)  ) or ( ((not B1(15)) and A1(15)) and (not bufferout(15)))  ) when others;
+	flag1 <= not( bufferout(15) or bufferout(14) or bufferout(13) or bufferout(12) or bufferout(11) or bufferout(10) or bufferout(9) or bufferout(8) or bufferout(7) or bufferout(6) or bufferout(5) or bufferout(4) or bufferout(3) or bufferout(2) or bufferout(1) or bufferout(0) );
+	flag2 <= bufferout(16);
+	flag3 <= bufferout(15);
 	
 	
 	bufferflags <= flag3 & flag2 & flag1 & flag0;
 
-	AOut <= bufferaout;
+	AOut <= bufferout;
 	flags1 <= bufferflags;
 
 end Behavioral;
