@@ -44,7 +44,7 @@ end ArithU;
 	
 architecture Behavioral of ArithU is
 
-	signal auxA1, auxB1: std_logic_vector(16 downto 0);
+	
 	signal aux1,aux2,aux3,aux4,aux5,aux6, bufferout: std_logic_vector(16 downto 0);
 	signal bufferflags: std_logic_vector(3 downto 0);
 	signal flag1,flag2,flag3,flag0: std_logic;
