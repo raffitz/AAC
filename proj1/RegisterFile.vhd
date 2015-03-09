@@ -49,15 +49,15 @@ architecture Behavioral of RF is
 	signal registers: registersFile;
 
 begin
-
+	
+	A <= registers(conv_integer(Aaddr));
+	B <= registers(conv_integer(Baddr));
+	
 	process(clk)
 	begin
 		if (rising_edge(clk) and WE='1') then
 			registers(conv_integer(Daddr)) <= DATA;
 		end if;
-		
-		A <= registers(conv_integer(Aaddr));
-		B <= registers(conv_integer(Baddr));
 
 	end process;
 

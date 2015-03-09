@@ -10,8 +10,8 @@ entity imem is
 		DATA : out std_logic_vector(15 downto 0));
 end imem;
 
-architecture Behavioural of IMem is
-	type rom_type is array (15 downto 0) of std_logic_vector (15 downto 0);                 
+architecture Behavioural of IMem is --/!\--
+	type rom_type is array (2**14 downto 0) of std_logic_vector (15 downto 0);                 
 	signal ROM : rom_type:= (X"0000", X"0000", X"0000", X"0000", X"0000", X"0000", X"0000", X"0000", X"0000", X"0000", X"0000", X"0000", X"0000", X"0000", X"0000", X"0000");
 
 begin
