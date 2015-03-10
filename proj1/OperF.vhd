@@ -31,7 +31,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity OperF is
 	PORT(
-		IMM: in std_logic_vector(15 downto 0);
+		EXTSIGNAL: in std_logic_vector(15 downto 0);
+		PCounter: in std_logic_vector(15 downto 0);
 		RFA: in std_logic_vector(15 downto 0);
 		RFB: in std_logic_vector(15 downto 0);
 		selA: in std_logic;
@@ -46,11 +47,11 @@ architecture Behavioral of OperF is
 
 begin
 	with selA select operA <=
-		IMM when '0',
-		RFA when others;
+		RFA when '0',
+		PCounter when others;
 	with selB select operB <=
-		IMM when '0',
-		RFB when others;
+		RFB when '0',
+		EXTSIGNAL when others;
 
 end Behavioral;
 
