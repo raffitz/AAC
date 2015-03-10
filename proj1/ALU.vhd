@@ -37,7 +37,6 @@ entity ALU is
 		A : in  STD_LOGIC_VECTOR(15 downto 0);
 		B : in STD_LOGIC_VECTOR(15 downto 0);
 		sel : in STD_LOGIC_VECTOR(4 downto 0);
-		flagsin : in STD_LOGIC_VECTOR(3 downto 0);
 		flagsout : out STD_LOGIC_VECTOR(3 downto 0);
 		C : out STD_LOGIC_VECTOR(15 downto 0)
 	);
@@ -50,7 +49,6 @@ architecture Behavioral of ALU is
 			A1 : IN std_logic_vector(15 downto 0);
 			B1 : IN std_logic_vector(15 downto 0);
 			sel : in STD_LOGIC_VECTOR(4 downto 0);
-			flags : in STD_LOGIC_VECTOR(3 downto 0);			
 			flags1 : out std_logic_vector(3 downto 0);
 			AOut : OUT std_logic_vector(15 downto 0)
 		);
@@ -62,7 +60,6 @@ architecture Behavioral of ALU is
 			A2 : IN std_logic_vector(15 downto 0);
 			B2 : IN std_logic_vector(15 downto 0);  
 			sel : in STD_LOGIC_VECTOR(4 downto 0);	
-			flags : in STD_LOGIC_VECTOR(3 downto 0);
 			flags2 : out std_logic_vector(3 downto 0);			
 			SOut : OUT std_logic_vector(15 downto 0)
 		);
@@ -75,7 +72,6 @@ architecture Behavioral of ALU is
 			A3 : IN std_logic_vector(15 downto 0);
 			B3 : IN std_logic_vector(15 downto 0); 
 			sel : in STD_LOGIC_VECTOR(4 downto 0);	
-			flags : in STD_LOGIC_VECTOR(3 downto 0);
 			flags3 : out std_logic_vector(3 downto 0);
 			LOut : OUT std_logic_vector(15 downto 0)
 		);
@@ -98,7 +94,6 @@ begin
 		A1 => A,
 		B1 => B,
 		sel => sel,
-		flags => flagsin,
 		flags1 => flagsarith,
 		AOut => arithOut 
 	);
@@ -107,7 +102,6 @@ begin
 		A2 => A,
 		B2 => B,
 		sel => sel,
-		flags => flagsin,
 		flags2 => flagsshift,
 		SOut => shiftOut 
 	);
@@ -116,7 +110,6 @@ begin
 		A3 => A,
 		B3 => B,
 		sel => sel,
-		flags => flagsin,
 		flags3 => flagslogic,
 		LOut => logicOut 
 	);

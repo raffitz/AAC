@@ -34,7 +34,6 @@ entity ShiftU is
 			A2 : IN std_logic_vector(15 downto 0);
 			B2 : IN std_logic_vector(15 downto 0);  
 			sel : in STD_LOGIC_VECTOR(5 downto 0);
-			flags : in STD_LOGIC_VECTOR(3 downto 0);
 			flags2 : out std_logic_vector(3 downto 0);			
 			SOut : OUT std_logic_vector(15 downto 0)
 		);
@@ -47,8 +46,6 @@ architecture Behavioral of ShiftU is
 	signal flag1,flag2,flag3,flag0: std_logic;
 	
 begin
-
-	flags2 <= flags;
 
 	aux1 <= A2(14 downto 0) & '0';
 	aux2 <= A2(15) & A2(15 downto 1);
@@ -69,7 +66,7 @@ begin
 		'1' when others;
 
 	SOut <= buffersout;
-	flags2 <= flag3 & flag2 & flag1 & flags(0);
+	flags2 <= flag3 & flag2 & flag1 & 0;
 	
 
 end Behavioral;

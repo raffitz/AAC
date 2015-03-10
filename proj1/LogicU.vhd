@@ -34,7 +34,6 @@ entity LogicU is
 			A3 : IN std_logic_vector(15 downto 0);
 			B3 : IN std_logic_vector(15 downto 0); 
 			sel : in STD_LOGIC_VECTOR(5 downto 0);	
-			flags : in STD_LOGIC_VECTOR(3 downto 0);
 			flags3 : out std_logic_vector(3 downto 0);
 			LOut : OUT std_logic_vector(15 downto 0)
 		);
@@ -90,10 +89,10 @@ begin
 	flag3 <= bufferlout(15);
 	
 	with sel(3 downto 0) select bufferflags <=
-		flags when "0000",
-		flags when "1111",	
-		flags when "0011",
-		flags3 & flags(2) & flags1 & flags(0) when others;
+		0 when "0000",
+		0 when "1111",	
+		0 when "0011",
+		flags3 & 0 & flags1 & 0 when others;
 	
 		
 	

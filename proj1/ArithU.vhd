@@ -34,8 +34,7 @@ entity ArithU is
 	PORT(
 			A1 : IN std_logic_vector(15 downto 0);
 			B1 : IN std_logic_vector(15 downto 0);
-			sel : in STD_LOGIC_VECTOR(5 downto 0);	
-			flags : in STD_LOGIC_VECTOR(3 downto 0);			
+			sel : in STD_LOGIC_VECTOR(5 downto 0);		
 			flags1 : out std_logic_vector(3 downto 0);
 			AOut : OUT std_logic_vector(15 downto 0)
 		);
@@ -44,7 +43,7 @@ end ArithU;
 	
 architecture Behavioral of ArithU is
 
-	
+	signal auxA1, auxB1: std_logic_vector(16 downto 0);
 	signal aux1,aux2,aux3,aux4,aux5,aux6, bufferout: std_logic_vector(16 downto 0);
 	signal bufferflags: std_logic_vector(3 downto 0);
 	signal flag1,flag2,flag3,flag0: std_logic;
