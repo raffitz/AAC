@@ -36,6 +36,9 @@ entity IFetch is
 		clk : in  STD_LOGIC;
 		jaddr : in STD_LOGIC_VECTOR(15 downto 0);
 		jsel : in STD_LOGIC;
+		pc_en : in STD_LOGIC;
+		pc_rst : in STD_LOGIC;
+		addr_sel : in STD_LOGIC;
 		addr : out STD_LOGIC_VECTOR(15 downto 0);
 		irout : out STD_LOGIC_VECTOR(15 downto 0)
 	);
@@ -77,8 +80,8 @@ begin
 		DATA => irout
 	);
 
-	rst <= '1';
-	en <= '1';
+	rst <= pc_rst;
+	en <= pc_en;
 	PC : reg
 	generic map (
 		nbits => 16
@@ -92,6 +95,6 @@ begin
 	);
 
 	pcin <= pcout + 1 when jsel = '0' else jaddr;
-	addr <= pcin;
+	addr <= pcin when addr_sel = '0' else pcout;
 
 end Behavioral;
