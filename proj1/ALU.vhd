@@ -31,52 +31,53 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-
 entity ALU is
 	Port (
 		A : in  STD_LOGIC_VECTOR(15 downto 0);
 		B : in STD_LOGIC_VECTOR(15 downto 0);
 		sel : in STD_LOGIC_VECTOR(4 downto 0);
-		flagsout : out STD_LOGIC_VECTOR(3 downto 0);
+		flagsin : in STD_LOGIC_VECTOR(3 downto 0);	-- S, C, Z, V
+		flagsout : out STD_LOGIC_VECTOR(3 downto 0);	-- S, C, Z, V
 		C : out STD_LOGIC_VECTOR(15 downto 0)
 	);
 end ALU;
 
 architecture Behavioral of ALU is
 
-	COMPONENT ArithU is
+	COMPONENT ArithU
 		PORT(
 			A1 : IN std_logic_vector(15 downto 0);
 			B1 : IN std_logic_vector(15 downto 0);
-			sel : in STD_LOGIC_VECTOR(4 downto 0);
-			flags1 : out std_logic_vector(3 downto 0);
+			sel : IN std_logic_vector(4 downto 0);          
+			flag_s : OUT std_logic;
+			flag_c : OUT std_logic;
+			flag_z : OUT std_logic;
+			flag_v : OUT std_logic;
 			AOut : OUT std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
 
-	COMPONENT ShiftU is
-		
+	COMPONENT ShiftU
 		PORT(
 			A2 : IN std_logic_vector(15 downto 0);
-			B2 : IN std_logic_vector(15 downto 0);  
-			sel : in STD_LOGIC_VECTOR(4 downto 0);	
-			flags2 : out std_logic_vector(3 downto 0);			
+			sel : IN std_logic_vector(4 downto 0);          
+			flag_s : OUT std_logic;
+			flag_c : OUT std_logic;
+			flag_z : OUT std_logic;
 			SOut : OUT std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
 
-
-	COMPONENT LogicU is
-		
+	COMPONENT LogicU
 		PORT(
 			A3 : IN std_logic_vector(15 downto 0);
-			B3 : IN std_logic_vector(15 downto 0); 
-			sel : in STD_LOGIC_VECTOR(4 downto 0);	
-			flags3 : out std_logic_vector(3 downto 0);
+			B3 : IN std_logic_vector(15 downto 0);
+			sel : IN std_logic_vector(4 downto 0);          
+			flag_z : OUT std_logic;
+			flag_s : OUT std_logic;
 			LOut : OUT std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
-
 
 	signal arithOut: STD_LOGIC_VECTOR(15 downto 0);
 	signal shiftOut: STD_LOGIC_VECTOR(15 downto 0);
@@ -85,35 +86,41 @@ architecture Behavioral of ALU is
 	signal flagsshift: STD_LOGIC_VECTOR(3 downto 0);
 	signal flagslogic: STD_LOGIC_VECTOR(3 downto 0);
 
-	
 begin
-
 	
-	ArithU: ArithU  
+	Inst_ArithU: ArithU  
 	PORT MAP(
 		A1 => A,
 		B1 => B,
 		sel => sel,
-		flags1 => flagsarith,
+		flag_s => flagsarith(3),
+		flag_c => flagsarith(2),
+		flag_z => flagsarith(1),
+		flag_v => flagsarith(0),
 		AOut => arithOut 
 	);
 	
-	ShiftU: ShiftU PORT MAP(
+	Inst_ShiftU: ShiftU PORT MAP(
 		A2 => A,
-		B2 => B,
 		sel => sel,
-		flags2 => flagsshift,
+		flag_s => flagsshift(3),
+		flag_c => flagsshift(2),
+		flag_z => flagsshift(1),
 		SOut => shiftOut 
 	);
 	
-	LogicU: LogicU PORT MAP(
+	Inst_LogicU: LogicU PORT MAP(
 		A3 => A,
 		B3 => B,
 		sel => sel,
-		flags3 => flagslogic,
+		flag_s => flagslogic(3),
+		flag_z => flagslogic(1),
 		LOut => logicOut 
 	);
 	
+	flagsshift(0) <= flagsin(0);
+	flagslogic(0) <= flagsin(0);
+	flagslogic(2) <= flagsin(2);
 
 	with sel(4 downto 3) select flagsout <=
 		flagsarith when "00",
@@ -125,9 +132,5 @@ begin
 		shiftOut when "01",
 		logicOut when others;
 		
-
-
 end Behavioral;
-
-
 
