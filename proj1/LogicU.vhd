@@ -31,73 +31,49 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity LogicU is
 	PORT(
-			A3 : IN std_logic_vector(15 downto 0);
-			B3 : IN std_logic_vector(15 downto 0); 
-			sel : in STD_LOGIC_VECTOR(5 downto 0);	
-			flags3 : out std_logic_vector(3 downto 0);
-			LOut : OUT std_logic_vector(15 downto 0)
-		);
+		A3 : IN std_logic_vector(15 downto 0);
+		B3 : IN std_logic_vector(15 downto 0); 
+		sel : IN std_logic_vector(4 downto 0);	
+		flag_z : OUT std_logic;
+		flag_s : OUT std_logic;	-- negative
+		LOut : OUT std_logic_vector(15 downto 0)
+	);
 
 end LogicU;
 
 architecture Behavioral of LogicU is
 
-
-	signal notA, notB: std_logic_vector(15 downto 0);
-	signal aux1,aux2,aux3,aux4,aux5,aux6,aux7,aux8,aux9,aux10, bufferlout: std_logic_vector(15 downto 0);
+	signal notA, notB, bufferlout: std_logic_vector(15 downto 0);
 	signal bufferflags: std_logic_vector(3 downto 0);
 	signal flag1,flag2,flag3,flag0: std_logic;
 
 begin
-	
-	flags3 <= flags;
-	
+
 	notA <= not A3;
 	notB <= not B3;
-	
-	aux1 <= A3 and B3;
-	aux2 <= notA and B3;
-	aux3 <= A3 and notB;
-	aux4 <= A3 xor B3;
-	aux5 <= A3 or B3;
-	aux6 <= A3 nor B3;
-	aux7 <= A3 xnor B3;
-	aux8 <= notA or B3;
-	aux9 <= A3 or notB;
-	aux10 <= A3 nand B3;
-	
-	
+
 	with sel(3 downto 0) select bufferlout <=
-		X"0000" when "0000",
-		aux2 when "0001",
-		aux3 when "0010",		
-		B3 when "0011",
-		aux3 when "0100",
-		A3 when "0101",
-		aux4 when "0110",
-		aux5 when "0111",
-		aux6 when "1000",
-		aux7 when "1001",
-		notA when "1010",
-		aux8 when "1011",
-		notB when "1100",
-		aux9 when "1101",
-		aux10 when "1110",
-		X"FFFF" when "1111";
-	
-	flag1 <= not( bufferlout(15) or bufferlout(14) or bufferlout(13) or bufferlout(12) or bufferlout(11) or bufferlout(10) or bufferlout(9) or bufferlout(8) or bufferlout(7) or bufferlout(6) or bufferlout(5) or bufferlout(4) or bufferlout(3) or bufferlout(2) or bufferlout(1) or bufferlout(0) );
-	flag3 <= bufferlout(15);
-	
-	with sel(3 downto 0) select bufferflags <=
-		0 when "0000",
-		0 when "1111",	
-		0 when "0011",
-		flags3 & 0 & flags1 & 0 when others;
-	
-		
-	
+	X"0000" when "0000",
+	A3 and B3 when "0001",
+	notA and B3 when "0010",		
+	B3 when "0011",
+	A3 and notB when "0100",
+	A3 when "0101",
+	A3 xor B3 when "0110",
+	A3 or B3 when "0111",
+	A3 nor B3 when "1000",
+	A3 xnor B3 when "1001",
+	notA when "1010",
+	notA or B3 when "1011",
+	notB when "1100",
+	A3 or notB when "1101",
+	A3 nand B3 when "1110",
+	X"0001" when "1111";
+
+	flag_z <= '1' when bufferlout = X"0000" else '0';
+	flag_s <= bufferlout(15);
+
 	LOut <= bufferlout;
-	flags3 <= bufferflags;
 
 end Behavioral;
 
