@@ -52,8 +52,8 @@ architecture Behavioral of ArithU is
 
 begin
 
-	A_ext <= A1(15) & A1;
-	B_ext <= B1(15) & B1;
+	A_ext <= '0' & A1;
+	B_ext <= '0' & B1;
 
 	with sel(2 downto 0) select bufferout <=
 	A_ext+B_ext when "000",
@@ -64,9 +64,9 @@ begin
 	A_ext-1 when others;
 
 
-	flag_v <= (A_ext(15) and B_ext(15) and not bufferout(15)) or (not A_ext(15) and not B_ext(15) and bufferout(15));
+	flag_v <= '1' when (A_ext(15) = B_ext(15)) and (bufferout(15) /= A_ext(15)) else '0';
 	flag_z <= '1' when bufferout(15 downto 0) = X"0000" else '0';
-	flag_c <= bufferout(16);	-- carry makes no sense for signed addition
+	flag_c <= bufferout(16);
 	flag_s <= bufferout(15);
 
 	AOut <= bufferout(15 downto 0);

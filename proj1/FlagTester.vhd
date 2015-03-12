@@ -31,8 +31,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity FT is
 	Port (
+		clk : in std_logic;
 		flags: in std_logic_vector(3 downto 0);
-		enable_flags: in std_logic_vector(3 downto 0);
 		cond: in std_logic_vector(3 downto 0);
 		op: in std_logic_vector(1 downto 0);
 		s: out std_logic
@@ -47,44 +47,29 @@ architecture Behavioral of FT is
 
 begin
 
-	with cond select jtrue <=
+	with cond(2 downto 0) select jtrue <=
 		regsign when "100",
 		regzero when "101",
 		regcarry when "110",
 		(regzero or regsign) when "111",
-		1 when "000",
+		'1' when "000",
 		regoverflow when others;
-		
-	with cond select jfalse <=
-		not regsign when "100",
-		not regzero when "101",
-		not regcarry when "110",
-		not (regzero or regsign) when "111",
-		1 when "000",
-		not regoverflow when others;
-	
-		
-	with op select buffers <=
-		jtrue when '0',
-		jfalse when others;
+
+	jfalse <= not jtrue;
+
+	with op(0) select buffers <=
+		jfalse when '0',
+		jtrue when others;
 
 	s <= buffers;
 
 	process(clk)
 	begin
 		if rising_edge(clk) then 
-			if enable(3)='1' then
-				regsign <= flags(3);
-			end if;
-			if enable(2)='1' then
-				regcarry <= flags(2);
-			end if;
-			if enable(1)='1' then
-				regzero <= flags(1);
-			end if;
-			if enable(0)='1' then
-				regoverflow <= flags(0);
-			end if;
+			regsign <= flags(3);
+			regcarry <= flags(2);
+			regzero <= flags(1);
+			regoverflow <= flags(0);
 		end if;
 	end process;
 
