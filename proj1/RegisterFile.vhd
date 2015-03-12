@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -52,6 +54,7 @@ begin
 	
 	A <= registers(conv_integer(Aaddr));
 	B <= registers(conv_integer(Baddr));
+
 	
 	process(clk)
 	begin
