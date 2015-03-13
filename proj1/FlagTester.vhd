@@ -35,6 +35,8 @@ entity FT is
 		flags: in std_logic_vector(3 downto 0);
 		cond: in std_logic_vector(3 downto 0);
 		op: in std_logic_vector(1 downto 0);
+		en : in std_logic;
+		flags_out: out std_logic_vector(3 downto 0);
 		s: out std_logic
 	);
 
@@ -63,15 +65,17 @@ begin
 
 	s <= buffers;
 
-	process(clk)
+	process(clk, en)
 	begin
-		if rising_edge(clk) then 
+		if rising_edge(clk) and en = '1' then
 			regsign <= flags(3);
 			regcarry <= flags(2);
 			regzero <= flags(1);
 			regoverflow <= flags(0);
 		end if;
 	end process;
+
+	flags_out <= regsign & regcarry & regzero & regoverflow;
 
 end Behavioral;
 

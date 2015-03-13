@@ -68,7 +68,7 @@ begin
 	notB when "1100",
 	A3 or notB when "1101",
 	A3 nand B3 when "1110",
-	X"0001" when "1111";
+	X"0001" when others;
 
 	flag_z <= '1' when bufferlout = X"0000" else '0';
 	flag_s <= bufferlout(15);
