@@ -37,8 +37,8 @@ entity ExMem is
 		B : in  STD_LOGIC_VECTOR (15 downto 0);
 		PC : in  STD_LOGIC_VECTOR (15 downto 0);
 		imm : in  STD_LOGIC_VECTOR (15 downto 0);
-		instr_in : in  STD_LOGIC_VECTOR (10 downto 0);	-- see decomposition below
-		instr_out : out  STD_LOGIC_VECTOR (3 downto 0);
+		instr_in : in  STD_LOGIC_VECTOR (11 downto 0);	-- see decomposition below
+		instr_out : out  STD_LOGIC_VECTOR (4 downto 0);
 		mux_A : in  STD_LOGIC;
 		mux_B : in  STD_LOGIC;
 		ALU_op : in  STD_LOGIC_VECTOR (4 downto 0);
@@ -97,7 +97,7 @@ begin
 	jump_cond <= instr_in(3 downto 0);
 	jump_op <= instr_in(5 downto 4);
 	flags_reg_we <= instr_in(6);
-	instr_out <= instr_in(10 downto 7);	-- register to WB and WB mux control signal
+	instr_out <= instr_in(11 downto 7);	-- register to WB and WB mux control signal AND WriteEnable
 
 	Inst_ALU: ALU PORT MAP(
 		A => ALU_A_in,
@@ -127,7 +127,7 @@ begin
 	);
 
 	ALU_A_in <= A when mux_A = '0' else PC;
-	ALU_B_in <= B when mux_B = '0' else imm;
+	ALU_B_in <= B when mux_B = '0' else imm; -- ATTENTION if it is lcl or lch this is VERY INCOMPLETE
 
 end Behavioral;
 

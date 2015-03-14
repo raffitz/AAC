@@ -41,6 +41,9 @@ entity IDRF is
 		RB : out  STD_LOGIC_VECTOR (15 downto 0);
 		const : out  STD_LOGIC_VECTOR (15 downto 0);
 		WC_addr : out  STD_LOGIC_VECTOR (2 downto 0);
+		ALU_op : OUT std_logic_vector(4 downto 0);
+		mux_a : OUT std_logic;
+		mux_b : OUT std_logic;
 		WC_we : out  STD_LOGIC;
 		WB_outsel : out  STD_LOGIC
 	);
@@ -55,7 +58,8 @@ architecture Behavioral of IDRF is
 		Daddr : IN std_logic_vector(2 downto 0);
 		DATA : IN std_logic_vector(15 downto 0);
 		WE : IN std_logic;
-		clk : IN std_logic;          
+		clk : IN std_logic;
+		inst_out : OUT std_logic_vector(11 downto 0);
 		A : OUT std_logic_vector(15 downto 0);
 		B : OUT std_logic_vector(15 downto 0)
 		);
@@ -96,13 +100,20 @@ begin
 	);
 	
 	WC_addr <= inst(13 downto 11);
-	WC_we <= '0'; -- TODO /!\ Isto vai ter de ser um bloco lógico!
-	-- Depende da instrução! 
-	WB_outsel <= '0'; -- TODO /!\ Isto vai ter de ser um bloco lógico!
-	-- Depende da instrução! 
+	WC_we <= '0' when inst(15 downto 14) = "00" else
+		'0' when inst(15 downto 9) = "1001011" else
+		'1';
+	WB_outsel <= '0' when inst(15 downto 9) = "1001011" else
+		'1'; -- 0 means Memory, 1 means ALU. If implemented
+		-- otherwise, don't forget changing this!
 	
+	ALU_op <= inst(13 downto 9);
+	mux_a <= '1' when inst(15 downto 14) = "00" else
+		'0'; -- Possibly overly simplistic
 	
-	
+	mux_b <= '0' when inst(15 downto 12) = "0011" else
+		'0' when inst(15 downto 14) = "10" else
+		'1';
 
 end Behavioral;
 
