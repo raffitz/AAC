@@ -40,12 +40,10 @@ entity IDRF is
 		RA : out  STD_LOGIC_VECTOR (15 downto 0);
 		RB : out  STD_LOGIC_VECTOR (15 downto 0);
 		const : out  STD_LOGIC_VECTOR (15 downto 0);
-		WC_addr : out  STD_LOGIC_VECTOR (2 downto 0);
 		ALU_op : OUT std_logic_vector(4 downto 0);
+		inst_out : OUT std_logic_vector(14 downto 0);
 		mux_a : OUT std_logic;
-		mux_b : OUT std_logic;
-		WC_we : out  STD_LOGIC;
-		WB_outsel : out  STD_LOGIC
+		mux_b : OUT std_logic
 	);
 end IDRF;
 
@@ -59,7 +57,6 @@ architecture Behavioral of IDRF is
 		DATA : IN std_logic_vector(15 downto 0);
 		WE : IN std_logic;
 		clk : IN std_logic;
-		inst_out : OUT std_logic_vector(11 downto 0);
 		A : OUT std_logic_vector(15 downto 0);
 		B : OUT std_logic_vector(15 downto 0)
 		);
@@ -99,12 +96,7 @@ begin
 		extended => const
 	);
 	
-	WC_addr <= inst(13 downto 11);
-	WC_we <= '0' when inst(15 downto 14) = "00" else	-- control transfer
-		'0' when inst(15 downto 9) = "1001011" else	-- store in Mem
-		'1';
-	WB_outsel <= '1' when inst(15 downto 9) = "1001010" else	-- load from Mem
-		'0'; -- 1 means Memory, 0 means ALU
+	
 
 	ALU_op <= inst(10 downto 6);
 	mux_a <= '1' when inst(15 downto 14) = "00" else	-- control transfer
@@ -113,6 +105,22 @@ begin
 	mux_b <= '0' when inst(15 downto 12) = "0011" else	-- JAL and JR
 		'0' when inst(15 downto 14) = "10" else	-- ALU ops
 		'1';
+	
+	inst_out(3 downto 0) <= inst(11 downto 8); -- jump cond
+	inst_out(5 downto 4) <= inst(13 downto 12); -- jump op
+	inst_out(6) <= '0' when inst(15 downto 14) = "10" and inst(10 downto 7) = "0101" else
+		'0'  when inst(15 downto 14) = "00" else '1'; -- Flag WE
+	
+	inst_out(11 downto 9) <= inst(13 downto 11);
+	inst_out(8) <= '0' when inst(15 downto 14) = "00" else	-- control transfer
+		'0' when inst(15 downto 14) = "10"and inst(10 downto 6)="01011" else	-- store in Mem
+		'1';
+	inst_out(7) <= '1' when inst(15 downto 14) = "10"and inst(10 downto 6)="01010" else	-- load from Mem
+		'0'; -- 1 means Memory, 0 means ALU
+	
+	
+	
+	
 
 end Behavioral;
 
