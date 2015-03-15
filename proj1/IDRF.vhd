@@ -100,19 +100,18 @@ begin
 	);
 	
 	WC_addr <= inst(13 downto 11);
-	WC_we <= '0' when inst(15 downto 14) = "00" else
-		'0' when inst(15 downto 9) = "1001011" else
+	WC_we <= '0' when inst(15 downto 14) = "00" else	-- control transfer
+		'0' when inst(15 downto 9) = "1001011" else	-- store in Mem
 		'1';
-	WB_outsel <= '0' when inst(15 downto 9) = "1001011" else
-		'1'; -- 0 means Memory, 1 means ALU. If implemented
-		-- otherwise, don't forget changing this!
-	
-	ALU_op <= inst(13 downto 9);
-	mux_a <= '1' when inst(15 downto 14) = "00" else
+	WB_outsel <= '1' when inst(15 downto 9) = "1001010" else	-- load from Mem
+		'0'; -- 1 means Memory, 0 means ALU
+
+	ALU_op <= inst(10 downto 6);
+	mux_a <= '1' when inst(15 downto 14) = "00" else	-- control transfer
 		'0'; -- Possibly overly simplistic
 	
-	mux_b <= '0' when inst(15 downto 12) = "0011" else
-		'0' when inst(15 downto 14) = "10" else
+	mux_b <= '0' when inst(15 downto 12) = "0011" else	-- JAL and JR
+		'0' when inst(15 downto 14) = "10" else	-- ALU ops
 		'1';
 
 end Behavioral;
