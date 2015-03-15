@@ -37,7 +37,7 @@ entity ExMem is
 		B : in  STD_LOGIC_VECTOR (15 downto 0);
 		PC : in  STD_LOGIC_VECTOR (15 downto 0);
 		imm : in  STD_LOGIC_VECTOR (15 downto 0);
-		instr_in : in  STD_LOGIC_VECTOR (11 downto 0);	-- see decomposition below
+		instr_in : in  STD_LOGIC_VECTOR (14 downto 0);	-- see decomposition below
 		instr_out : out  STD_LOGIC_VECTOR (4 downto 0);
 		mux_A : in  STD_LOGIC;
 		mux_B : in  STD_LOGIC;
@@ -85,6 +85,7 @@ architecture Behavioral of ExMem is
 
 	signal ALU_A_in : std_logic_vector(15 downto 0);
 	signal ALU_B_in : std_logic_vector(15 downto 0);
+	signal ALU_C_out : std_logic_vector(15 downto 0);
 	signal ALU_flagsout : std_logic_vector(3 downto 0);
 	signal ALU_flagsin : std_logic_vector(3 downto 0);
 
@@ -92,12 +93,21 @@ architecture Behavioral of ExMem is
 	signal jump_op : std_logic_vector(1 downto 0);
 	signal flags_reg_we : std_logic;
 
+	signal const : std_logic_vector(15 downto 0);
+	signal lcx : std_logic_vector(15 downto 0);
+	signal mux_C : std_logic;
+	signal mux_const : std_logic;
+	signal mux_lcx : std_logic;
+
 begin
 
 	jump_cond <= instr_in(3 downto 0);
 	jump_op <= instr_in(5 downto 4);
 	flags_reg_we <= instr_in(6);
-	instr_out <= instr_in(11 downto 7);	-- register to WB and WB mux control signal AND WriteEnable
+	instr_out <= instr_in(11 downto 7);	-- register to WB and WB mux control signal and WriteEnable
+	mux_C <= instr_in(12);
+	mux_const <= instr_in(13);
+	mux_lcx <= instr_in(14);
 
 	Inst_ALU: ALU PORT MAP(
 		A => ALU_A_in,
@@ -105,7 +115,7 @@ begin
 		sel => ALU_op,
 		flagsin => ALU_flagsin,
 		flagsout => ALU_flagsout,
-		C => ALU_out
+		C => ALU_C_out
 	);
 
 	Inst_RAM: RAM PORT MAP(
@@ -127,7 +137,11 @@ begin
 	);
 
 	ALU_A_in <= A when mux_A = '0' else PC;
-	ALU_B_in <= B when mux_B = '0' else imm; -- ATTENTION if it is lcl or lch this is VERY INCOMPLETE
+	ALU_B_in <= B when mux_B = '0' else imm;
+
+	lcx <= A(15 downto 8) & imm(7 downto 0) when mux_lcx = '0' else imm(15 downto 8) & A(7 downto 0);
+	const <= imm when mux_const = '0' else lcx;
+	ALU_out <= ALU_C_out when mux_C = '0' else const;
 
 end Behavioral;
 
