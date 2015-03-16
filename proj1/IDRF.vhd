@@ -41,7 +41,7 @@ entity IDRF is
 		RB : out  STD_LOGIC_VECTOR (15 downto 0);
 		const : out  STD_LOGIC_VECTOR (15 downto 0);
 		ALU_op : OUT std_logic_vector(4 downto 0);
-		inst_out : OUT std_logic_vector(14 downto 0);
+		inst_out : OUT std_logic_vector(15 downto 0);
 		mux_a : OUT std_logic;
 		mux_b : OUT std_logic
 	);
@@ -124,7 +124,8 @@ begin
 	-- Possibly overly simplistic
 	inst_out(14) <= inst(10); -- Low or High lc
 	
-	
+	inst_out(15) <= '1' when inst(15 downto 14) = "10"and inst(10 downto 6)="01011" else
+		'0'; --mem_en
 
 end Behavioral;
 
