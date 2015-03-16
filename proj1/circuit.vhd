@@ -33,7 +33,6 @@ entity circuit is
 	Port (
 		clk : in STD_LOGIC;
 		rst : in STD_LOGIC;
-		regfile_rst : in STD_LOGIC;
 		output : out STD_LOGIC_VECTOR(15 downto 0);
 		flag : out STD_LOGIC
 	);
@@ -58,9 +57,7 @@ architecture Behavioral of circuit is
 			rst : IN std_logic;
 			jaddr : IN std_logic_vector(15 downto 0);
 			jsel : IN std_logic;
-			pc_en : IN std_logic;
-			pc_rst : IN std_logic;
-			addr_sel : IN std_logic;          
+			pc_en : IN std_logic;        
 			addr : OUT std_logic_vector(15 downto 0);
 			irout : OUT std_logic_vector(15 downto 0)
 		);
@@ -195,7 +192,6 @@ architecture Behavioral of circuit is
 	-- Other non-reg signals:
 	
 	signal pc_en : std_logic;
-	signal pc_rst : std_logic;
 	
 	signal IF_e : std_logic;
 	signal IDRF_e : std_logic;
@@ -210,8 +206,6 @@ begin
 		jaddr => exmem_alu_out,
 		jsel => exmem_flag_status_out,
 		pc_en => pc_en,
-		pc_rst => pc_rst,
-		addr_sel => '1',	-- /!\ correct this!
 		addr => if_pc_out,
 		irout => if_instr_out 
 	);
@@ -323,8 +317,6 @@ begin
 	-- (when the jump address is calculated)
 	pc_en <= EXM_e;
 	
-	-- Program Counter is reset with the rest of the system
-	pc_rst <= rst;
 
 	output <= wb_output;	-- for circuit to be syntesised
 end Behavioral;

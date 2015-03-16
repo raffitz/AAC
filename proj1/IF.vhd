@@ -38,8 +38,6 @@ entity IFetch is
 		jaddr : in STD_LOGIC_VECTOR(15 downto 0);
 		jsel : in STD_LOGIC;
 		pc_en : in STD_LOGIC;
-		pc_rst : in STD_LOGIC;
-		addr_sel : in STD_LOGIC;
 		addr : out STD_LOGIC_VECTOR(15 downto 0);
 		irout : out STD_LOGIC_VECTOR(15 downto 0)
 	);
@@ -49,7 +47,6 @@ architecture Behavioral of IFetch is
 
 	COMPONENT IMem
 		PORT(
-			CLK : IN std_logic;
 			ADDR : IN std_logic_vector(15 downto 0);          
 			DATA : OUT std_logic_vector(15 downto 0)
 		);
@@ -75,7 +72,6 @@ architecture Behavioral of IFetch is
 begin
 
 	Inst_IMem: IMem PORT MAP(
-		CLK => clk,
 		ADDR => pcout,
 		DATA => irout
 	);
@@ -94,6 +90,6 @@ begin
 	);
 
 	pcin <= pcout + 1 when jsel = '0' else jaddr;
-	addr <= pcin when addr_sel = '0' else pcout;
+	addr <= pcin;
 
 end Behavioral;

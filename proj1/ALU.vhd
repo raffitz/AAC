@@ -85,6 +85,7 @@ architecture Behavioral of ALU is
 	signal flagsarith: STD_LOGIC_VECTOR(3 downto 0);
 	signal flagsshift: STD_LOGIC_VECTOR(3 downto 0);
 	signal flagslogic: STD_LOGIC_VECTOR(3 downto 0);
+	signal flagslogicout : STD_LOGIC_VECTOR(3 downto 0);
 
 begin
 	
@@ -121,11 +122,24 @@ begin
 	flagsshift(0) <= flagsin(0);
 	flagslogic(0) <= flagsin(0);
 	flagslogic(2) <= flagsin(2);
-
+	flagslogicout(0) <= flagslogic(0);
+	flagslogicout(2) <= flagslogic(2);
+	with sel(3 downto 0) select flagslogicout(1) <=
+		flagsin(1) when "0000",
+		flagsin(1) when "0011",
+		flagsin(1) when "1111",
+		flagslogic(1) when others;
+	
+	with sel(3 downto 0) select flagslogicout(3) <=
+		flagsin(3) when "0000",
+		flagsin(3) when "0011",
+		flagsin(3) when "1111",
+		flagslogic(3) when others;
+	
 	with sel(4 downto 3) select flagsout <=
 		flagsarith when "00",
 		flagsshift when "01",
-		flagslogic when others;
+		flagslogicout when others;
 		
 	with sel(4 downto 3) select C <=
 		arithOut when "00",

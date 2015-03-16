@@ -57,6 +57,7 @@ architecture Behavioral of IDRF is
 		DATA : IN std_logic_vector(15 downto 0);
 		WE : IN std_logic;
 		clk : IN std_logic;
+		rst : IN std_logic;
 		A : OUT std_logic_vector(15 downto 0);
 		B : OUT std_logic_vector(15 downto 0)
 		);
@@ -85,7 +86,8 @@ begin
 		Daddr => wb_addr,
 		DATA => wb_data,
 		WE => wb_we,
-		clk => clk
+		clk => clk,
+		rst => rst
 	);
 	
 	Inst_SExt: SExt PORT MAP(

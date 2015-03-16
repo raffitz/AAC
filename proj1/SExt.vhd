@@ -44,9 +44,9 @@ architecture Behavioral of SExt is
 
 begin
 	extended <= "11111" & const11 when
-			(const11(10) = '1' and inselect = "01X") else
+			(const11(10) = '1' and inselect(2 downto 1) = "01") else
 		"00000" & const11 when
-			(const11(10) = '0' and inselect = "01X") else
+			(const11(10) = '0' and inselect(2 downto 1) = "01") else
 		"1111" & const12 when
 			(const12(11) = '1' and inselect = "001") else
 		"0000" & const12 when

@@ -40,7 +40,8 @@ entity RF is
 		Daddr: in STD_LOGIC_VECTOR(2 downto 0);
 		DATA: in STD_LOGIC_VECTOR(15 downto 0);
 		WE: in STD_LOGIC;
-		clk: in STD_LOGIC
+		clk: in STD_LOGIC;
+		rst: in STD_LOGIC
 	);
 
 end RF;
@@ -56,12 +57,15 @@ begin
 	B <= registers(conv_integer(Baddr));
 
 	
-	process(clk)
+	process(clk, rst, WE)
 	begin
-		if (rising_edge(clk) and WE='1') then
-			registers(conv_integer(Daddr)) <= DATA;
+		if (rst = '1') then
+			registers <= (others => (others => '0'));
+		else
+			if (rising_edge(clk) and WE='1') then
+				registers(conv_integer(Daddr)) <= DATA;
+			end if;
 		end if;
-
 	end process;
 
 end Behavioral;

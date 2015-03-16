@@ -13,7 +13,7 @@ end reg;
 
 architecture Behavioral of reg is
 begin
-	process(clk, rst)
+	process(clk, rst, en)
 	begin
 		if(rst = '1') then
 			Q <= (others => '0');
