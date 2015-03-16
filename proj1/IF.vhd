@@ -34,6 +34,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity IFetch is
 	Port (
 		clk : in  STD_LOGIC;
+		rst : in STD_LOGIC;
 		jaddr : in STD_LOGIC_VECTOR(15 downto 0);
 		jsel : in STD_LOGIC;
 		pc_en : in STD_LOGIC;
@@ -68,7 +69,6 @@ architecture Behavioral of IFetch is
 	END COMPONENT;
 
 
-	signal rst : STD_LOGIC;
 	signal en : STD_LOGIC;
 	signal pcout : STD_LOGIC_VECTOR(15 downto 0);
 	signal pcin : STD_LOGIC_VECTOR(15 downto 0);
@@ -80,7 +80,6 @@ begin
 		DATA => irout
 	);
 
-	rst <= pc_rst;
 	en <= pc_en;
 	PC : reg
 	generic map (

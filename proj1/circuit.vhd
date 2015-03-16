@@ -33,8 +33,6 @@ entity circuit is
 	Port (
 		clk : in STD_LOGIC;
 		rst : in STD_LOGIC;
-		pc_en : in STD_LOGIC;
-		pc_rst : in STD_LOGIC;
 		regfile_rst : in STD_LOGIC;
 		output : out STD_LOGIC_VECTOR(15 downto 0);
 		flag : out STD_LOGIC
@@ -43,9 +41,21 @@ end circuit;
 
 architecture Behavioral of circuit is
 
+	COMPONENT TGC
+	PORT(
+		clk : IN std_logic;
+		rst : IN std_logic;          
+		IF_e : OUT std_logic;
+		IDRF_e : OUT std_logic;
+		EXM_e : OUT std_logic;
+		WB_e : OUT std_logic
+	);
+	END COMPONENT;
+
 	COMPONENT IFetch
 		PORT(
 			clk : IN std_logic;
+			rst : IN std_logic;
 			jaddr : IN std_logic_vector(15 downto 0);
 			jsel : IN std_logic;
 			pc_en : IN std_logic;
@@ -181,11 +191,22 @@ architecture Behavioral of circuit is
 	signal wb_alu_data_in : std_logic_vector(15 downto 0);
 	signal wb_src_sel_in : std_logic;
 	signal wb_output : std_logic_vector(15 downto 0);
+	
+	-- Other non-reg signals:
+	
+	signal pc_en : std_logic;
+	signal pc_rst : std_logic;
+	
+	signal IF_e : std_logic;
+	signal IDRF_e : std_logic;
+	signal EXM_e : std_logic;
+	signal WB_e : std_logic;
 
 begin
 
 	Inst_IFetch: IFetch PORT MAP(
 		clk => clk,
+		rst => rst,
 		jaddr => exmem_alu_out,
 		jsel => exmem_flag_status_out,
 		pc_en => pc_en,
@@ -246,42 +267,64 @@ begin
 		src_sel => wb_src_sel_in,
 		output => wb_output
 	);
+	
+	Inst_TGC: TGC PORT MAP(
+		clk => clk,
+		rst => rst,
+		IF_e => IF_e,
+		IDRF_e => IDRF_e,
+		EXM_e => EXM_e,
+		WB_e => WB_e
+	);
 
-	process(clk)
+	process(clk, IF_e, IDRF_e, EXM_e, WB_e)
 	begin
 		if rising_edge(clk) then
-
-			idrf_pc_in <= if_pc_out; 
-			idrf_instr_in <= if_instr_out;
-
-			exmem_pc_in      <= idrf_pc_out;
-			exmem_a_in       <= idrf_a_out;
-			exmem_b_in       <= idrf_b_out;
-			exmem_const_in   <= idrf_const_out;
-			exmem_jump_cond_in <= idrf_inst_out_aux(3 downto 0);
-			exmem_jump_op_in <= idrf_inst_out_aux(5 downto 4);
-			exmem_flags_reg_we_in <= idrf_inst_out_aux(6);
-			exmem_wb_mux_in <= idrf_inst_out_aux(7);
-			exmem_wb_we_in <= idrf_inst_out_aux(8);
-			exmem_wb_addr_in <= idrf_inst_out_aux(11 downto 9);
-			exmem_mux_c_in <= idrf_inst_out_aux(12);
-			exmem_mux_const_in <= idrf_inst_out_aux(13);
-			exmem_mux_lcx_in <= idrf_inst_out_aux(14);
-			exmem_mem_en_in  <= idrf_inst_out_aux(15);
-			exmem_alu_op_in  <= idrf_alu_op_out;
-			exmem_mux_a_in   <= idrf_mux_a_out;
-			exmem_mux_b_in   <= idrf_mux_b_out;
-
-			wb_mem_data_in <= exmem_mem_out;
-			wb_alu_data_in <= exmem_alu_out;
-			wb_src_sel_in <= exmem_wb_mux_in;
-
-			idrf_wb_data_in <= wb_output;
-			idrf_wb_addr_in <= exmem_wb_addr_out;
-			idrf_wb_we_in   <= exmem_wb_we_out;
+			
+			if IF_e = '1' then
+				idrf_pc_in <= if_pc_out; 
+				idrf_instr_in <= if_instr_out;
+			end if;
+			if IDRF_e = '1' then
+				exmem_pc_in      <= idrf_pc_out;
+				exmem_a_in       <= idrf_a_out;
+				exmem_b_in       <= idrf_b_out;
+				exmem_const_in   <= idrf_const_out;
+				exmem_jump_cond_in <= idrf_inst_out_aux(3 downto 0);
+				exmem_jump_op_in <= idrf_inst_out_aux(5 downto 4);
+				exmem_flags_reg_we_in <= idrf_inst_out_aux(6);
+				exmem_wb_mux_in <= idrf_inst_out_aux(7);
+				exmem_wb_we_in <= idrf_inst_out_aux(8);
+				exmem_wb_addr_in <= idrf_inst_out_aux(11 downto 9);
+				exmem_mux_c_in <= idrf_inst_out_aux(12);
+				exmem_mux_const_in <= idrf_inst_out_aux(13);
+				exmem_mux_lcx_in <= idrf_inst_out_aux(14);
+				exmem_mem_en_in  <= idrf_inst_out_aux(15);
+				exmem_alu_op_in  <= idrf_alu_op_out;
+				exmem_mux_a_in   <= idrf_mux_a_out;
+				exmem_mux_b_in   <= idrf_mux_b_out;
+			end if;
+			if EXM_e = '1' then
+				wb_mem_data_in <= exmem_mem_out;
+				wb_alu_data_in <= exmem_alu_out;
+				wb_src_sel_in <= exmem_wb_mux_in;
+			end if;
+			
 
 		end if;
 	end process;
+	
+	-- Write-back output does not go through registers:
+	idrf_wb_data_in <= wb_output;
+	idrf_wb_addr_in <= exmem_wb_addr_out;
+	idrf_wb_we_in   <= WB_e and exmem_wb_we_out;
+	
+	-- Program Counter is updated in the EXM cycle
+	-- (when the jump address is calculated)
+	pc_en <= EXM_e;
+	
+	-- Program Counter is reset with the rest of the system
+	pc_rst <= rst;
 
 	output <= wb_output;	-- for circuit to be syntesised
 end Behavioral;
