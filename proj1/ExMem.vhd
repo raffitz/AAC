@@ -37,11 +37,21 @@ entity ExMem is
 		B : in  STD_LOGIC_VECTOR (15 downto 0);
 		PC : in  STD_LOGIC_VECTOR (15 downto 0);
 		imm : in  STD_LOGIC_VECTOR (15 downto 0);
-		instr_in : in  STD_LOGIC_VECTOR (14 downto 0);	-- see decomposition below
-		instr_out : out  STD_LOGIC_VECTOR (4 downto 0);
+	jump_cond : in STD_LOGIC_VECTOR(3 downto 0);
+	jump_op : in STD_LOGIC_VECTOR(5 downto 4);
+	flags_reg_we : in STD_LOGIC;
+	wb_addr_in : in STD_LOGIC_VECTOR(2 downto 0);
+	wb_mux_in : in STD_LOGIC;
+	wb_we_in : in STD_LOGIC;
+	mux_C : in STD_LOGIC;
+	mux_const : in STD_LOGIC;
+	mux_lcx : in STD_LOGIC;
 		mux_A : in  STD_LOGIC;
 		mux_B : in  STD_LOGIC;
 		ALU_op : in  STD_LOGIC_VECTOR (4 downto 0);
+	wb_addr_out : out STD_LOGIC_VECTOR(2 downto 0);
+	wb_mux_out : out STD_LOGIC;
+	wb_we_out : out STD_LOGIC;
 		flag_status : out  STD_LOGIC;
 		mem_out : out  STD_LOGIC_VECTOR (15 downto 0);
 		ALU_out : out  STD_LOGIC_VECTOR (15 downto 0)
@@ -89,25 +99,13 @@ architecture Behavioral of ExMem is
 	signal ALU_flagsout : std_logic_vector(3 downto 0);
 	signal ALU_flagsin : std_logic_vector(3 downto 0);
 
-	signal jump_cond : std_logic_vector(3 downto 0);
-	signal jump_op : std_logic_vector(1 downto 0);
-	signal flags_reg_we : std_logic;
-
 	signal const : std_logic_vector(15 downto 0);
 	signal lcx : std_logic_vector(15 downto 0);
-	signal mux_C : std_logic;
-	signal mux_const : std_logic;
-	signal mux_lcx : std_logic;
 
 begin
-
-	jump_cond <= instr_in(3 downto 0);
-	jump_op <= instr_in(5 downto 4);
-	flags_reg_we <= instr_in(6);
-	instr_out <= instr_in(11 downto 7);	-- register to WB and WB mux control signal and WriteEnable
-	mux_C <= instr_in(12);
-	mux_const <= instr_in(13);
-	mux_lcx <= instr_in(14);
+	wb_addr_out <= wb_addr_in;
+	wb_mux_out <= wb_mux_in;
+	wb_we_out <= wb_we_in;
 
 	Inst_ALU: ALU PORT MAP(
 		A => ALU_A_in,

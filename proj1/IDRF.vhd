@@ -111,10 +111,12 @@ begin
 	inst_out(6) <= '0' when inst(15 downto 14) = "10" and inst(10 downto 7) = "0101" else
 		'0'  when inst(15 downto 14) = "00" else '1'; -- Flag WE
 	
-	inst_out(11 downto 9) <= inst(13 downto 11);
+	inst_out(11 downto 9) <= inst(13 downto 11);	-- WC addr
+	-- WC we
 	inst_out(8) <= '0' when inst(15 downto 14) = "00" else	-- control transfer
 		'0' when inst(15 downto 14) = "10"and inst(10 downto 6)="01011" else	-- store in Mem
 		'1';
+	-- WB mux control
 	inst_out(7) <= '1' when inst(15 downto 14) = "10"and inst(10 downto 6)="01010" else	-- load from Mem
 		'0'; -- 1 means Memory, 0 means ALU
 	

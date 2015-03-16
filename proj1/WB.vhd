@@ -34,8 +34,6 @@ entity WB is
 		mem_data : in  STD_LOGIC_VECTOR (15 downto 0);
 		alu_data : in  STD_LOGIC_VECTOR (15 downto 0);
 		src_sel : in  STD_LOGIC;
-		wb_addr_in : in  STD_LOGIC_VECTOR (2 downto 0);
-		wb_addr_out : out  STD_LOGIC_VECTOR (2 downto 0);
 		output : out  STD_LOGIC_VECTOR (15 downto 0)
 	);
 end WB;
@@ -45,7 +43,6 @@ architecture Behavioral of WB is
 begin
 
 	output <= mem_data when src_sel = '1' else alu_data;
-	wb_addr_out <= wb_addr_in;
 
 end Behavioral;
 
