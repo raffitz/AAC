@@ -209,9 +209,16 @@ BEGIN
 		--TESTES COND
 		
 	 wait for clk_period*2;
-	 instr_in <= "000000001000100";
+	 instr_in <= "000000001000100";-- false negative
 	 ALU_op <= "00000";
-	 
+	 wait for clk_period*2;
+	 instr_in <= "000000001010100";-- true negative
+	 wait for clk_period*2;
+	 instr_in <= "000000001000101";-- false zero
+	 wait for clk_period*2;
+	 instr_in <= "000000001010100";--true carry
+	 wait for clk_period*2;
+	 instr_in <= "000000001000111";--false neg|zero
 	 
 		
 		
