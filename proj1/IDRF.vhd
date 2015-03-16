@@ -118,7 +118,11 @@ begin
 	inst_out(7) <= '1' when inst(15 downto 14) = "10"and inst(10 downto 6)="01010" else	-- load from Mem
 		'0'; -- 1 means Memory, 0 means ALU
 	
-	
+	inst_out(12) <= inst(14); -- Whether output is immediate or ALU
+	-- Possi
+	inst_out(13) <= inst(15); -- Complete constant load or high/low part;
+	-- Possibly overly simplistic
+	inst_out(14) <= inst(10); -- Low or High lc
 	
 	
 
