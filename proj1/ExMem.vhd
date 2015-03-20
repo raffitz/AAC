@@ -41,7 +41,7 @@ entity ExMem is
 		jump_op : in STD_LOGIC_VECTOR(5 downto 4);
 		flags_reg_we : in STD_LOGIC;
 		wb_addr_in : in STD_LOGIC_VECTOR(2 downto 0);
-		wb_mux_in : in STD_LOGIC;
+		wb_mux_in : in STD_LOGIC_VECTOR (1 downto 0);
 		wb_we_in : in STD_LOGIC;
 		mux_C : in STD_LOGIC;
 		mux_const : in STD_LOGIC;
@@ -50,11 +50,12 @@ entity ExMem is
 		mux_B : in  STD_LOGIC;
 		ALU_op : in  STD_LOGIC_VECTOR (4 downto 0);
 		wb_addr_out : out STD_LOGIC_VECTOR(2 downto 0);
-		wb_mux_out : out STD_LOGIC;
+		wb_mux_out : out STD_LOGIC_VECTOR (1 downto 0);
 		wb_we_out : out STD_LOGIC;
 		flag_status : out  STD_LOGIC;
 		mem_out : out  STD_LOGIC_VECTOR (15 downto 0);
 		ALU_out : out  STD_LOGIC_VECTOR (15 downto 0)
+		PC_out : out STD_LOGIC_VECTOR (15 downto 0);
 	);
 end ExMem;
 
@@ -140,6 +141,7 @@ begin
 	lcx <= A(15 downto 8) & imm(7 downto 0) when mux_lcx = '0' else imm(15 downto 8) & A(7 downto 0);
 	const <= imm when mux_const = '0' else lcx;
 	ALU_out <= ALU_C_out when mux_C = '0' else const;
+	PC_out <= PC;
 
 end Behavioral;
 

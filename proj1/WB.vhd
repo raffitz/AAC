@@ -33,7 +33,8 @@ entity WB is
 	Port (
 		mem_data : in  STD_LOGIC_VECTOR (15 downto 0);
 		alu_data : in  STD_LOGIC_VECTOR (15 downto 0);
-		src_sel : in  STD_LOGIC;
+		curr_PC : in  STD_LOGIC_VECTOR (15 downto 0);
+		src_sel : in  STD_LOGIC_VECTOR (1 downto 0);
 		output : out  STD_LOGIC_VECTOR (15 downto 0)
 	);
 end WB;
@@ -42,7 +43,9 @@ architecture Behavioral of WB is
 
 begin
 
-	output <= mem_data when src_sel = '1' else alu_data;
+	output <= mem_data when src_sel = '01' else
+			  alu_data when src_sel = '00' else
+			  curr_PC when src_sel(1) = '1';
 
 end Behavioral;
 

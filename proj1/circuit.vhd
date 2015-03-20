@@ -41,14 +41,14 @@ end circuit;
 architecture Behavioral of circuit is
 
 	COMPONENT TGC
-	PORT(
-		clk : IN std_logic;
-		rst : IN std_logic;          
-		IF_e : OUT std_logic;
-		IDRF_e : OUT std_logic;
-		EXM_e : OUT std_logic;
-		WB_e : OUT std_logic
-	);
+		PORT(
+				clk : IN std_logic;
+				rst : IN std_logic;          
+				IF_e : OUT std_logic;
+				IDRF_e : OUT std_logic;
+				EXM_e : OUT std_logic;
+				WB_e : OUT std_logic
+			);
 	END COMPONENT;
 
 	COMPONENT IFetch
@@ -109,6 +109,7 @@ architecture Behavioral of circuit is
 			flag_status : OUT std_logic;
 			mem_out : OUT std_logic_vector(15 downto 0);
 			ALU_out : OUT std_logic_vector(15 downto 0)
+			PC_out : OUT std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
 
@@ -116,7 +117,8 @@ architecture Behavioral of circuit is
 		PORT(
 			mem_data : IN std_logic_vector(15 downto 0);
 			alu_data : IN std_logic_vector(15 downto 0);
-			src_sel : IN std_logic;          
+			curr_PC : IN std_logic_vector(15 downto 0);
+			src_sel : IN std_logic_vector(15 downto 0);          
 			output : OUT std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
@@ -170,23 +172,24 @@ architecture Behavioral of circuit is
 	signal exmem_jump_op_in : std_logic_vector(1 downto 0);
 	signal exmem_flags_reg_we_in : std_logic;
 	signal exmem_wb_addr_in : std_logic_vector(2 downto 0);
-	signal exmem_wb_mux_in : std_logic;
+	signal exmem_wb_mux_in : std_logic_vector(1 downto 0);
 	signal exmem_mux_c_in : std_logic;
 	signal exmem_mux_const_in : std_logic;
 	signal exmem_mux_lcx_in : std_logic;
 	signal exmem_flag_status_out : std_logic;
 
 	signal exmem_wb_addr_out : std_logic_vector(2 downto 0);
-	signal exmem_wb_mux_out : std_logic;
+	signal exmem_wb_mux_out : std_logic_vector(1 downto 0);
 	signal exmem_wb_we_out : std_logic;
 
 	signal exmem_mem_out : std_logic_vector(15 downto 0);
 	signal exmem_alu_out : std_logic_vector(15 downto 0);
+	signal exmem_pc_out : std_logic_vector(15 downto 0);
 	signal exmem_instr_out : std_logic_vector(4 downto 0);
 
 	signal wb_mem_data_in : std_logic_vector(15 downto 0);
 	signal wb_alu_data_in : std_logic_vector(15 downto 0);
-	signal wb_src_sel_in : std_logic;
+	signal wb_src_sel_in : std_logic_vector(1 downto 0);
 	signal wb_output : std_logic_vector(15 downto 0);
 	
 	-- Other non-reg signals:
@@ -253,6 +256,7 @@ begin
 		flag_status => exmem_flag_status_out,
 		mem_out => exmem_mem_out,
 		ALU_out => exmem_alu_out 
+		PC_out => exmem_pc_out 
 	);
 
 	Inst_WB: WB PORT MAP(
@@ -280,27 +284,28 @@ begin
 				idrf_instr_in <= if_instr_out;
 			end if;
 			if IDRF_e = '1' then
-				exmem_pc_in      <= idrf_pc_out;
-				exmem_a_in       <= idrf_a_out;
-				exmem_b_in       <= idrf_b_out;
-				exmem_const_in   <= idrf_const_out;
+				exmem_pc_in <= idrf_pc_out;
+				exmem_a_in <= idrf_a_out;
+				exmem_b_in <= idrf_b_out;
+				exmem_const_in <= idrf_const_out;
 				exmem_jump_cond_in <= idrf_inst_out_aux(3 downto 0);
 				exmem_jump_op_in <= idrf_inst_out_aux(5 downto 4);
 				exmem_flags_reg_we_in <= idrf_inst_out_aux(6);
-				exmem_wb_mux_in <= idrf_inst_out_aux(7);
+				exmem_wb_mux_in(0) <= idrf_inst_out_aux(7);	-- /!\ correct this (mux has two bits now)
 				exmem_wb_we_in <= idrf_inst_out_aux(8);
 				exmem_wb_addr_in <= idrf_inst_out_aux(11 downto 9);
 				exmem_mux_c_in <= idrf_inst_out_aux(12);
 				exmem_mux_const_in <= idrf_inst_out_aux(13);
 				exmem_mux_lcx_in <= idrf_inst_out_aux(14);
-				exmem_mem_en_in  <= idrf_inst_out_aux(15);
-				exmem_alu_op_in  <= idrf_alu_op_out;
-				exmem_mux_a_in   <= idrf_mux_a_out;
-				exmem_mux_b_in   <= idrf_mux_b_out;
+				exmem_mem_en_in <= idrf_inst_out_aux(15);
+				exmem_alu_op_in <= idrf_alu_op_out;
+				exmem_mux_a_in <= idrf_mux_a_out;
+				exmem_mux_b_in <= idrf_mux_b_out;
 			end if;
 			if EXM_e = '1' then
 				wb_mem_data_in <= exmem_mem_out;
 				wb_alu_data_in <= exmem_alu_out;
+				wb_curr_pc_in <= exmem_pc_out;
 				wb_src_sel_in <= exmem_wb_mux_in;
 			end if;
 			

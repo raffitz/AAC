@@ -111,15 +111,16 @@ begin
 	inst_out(3 downto 0) <= inst(11 downto 8); -- jump cond
 	inst_out(5 downto 4) <= inst(13 downto 12); -- jump op
 	inst_out(6) <= '0' when inst(15 downto 14) = "10" and inst(10 downto 7) = "0101" else
-		'0'  when inst(15 downto 14) = "00" else '1'; -- Flag WE
+		'0' when inst(15 downto 14) = "00" else '1'; -- Flag WE
 	
 	inst_out(11 downto 9) <= inst(13 downto 11);	-- WC addr
 	-- WC we
 	inst_out(8) <= '0' when inst(15 downto 14) = "00" else	-- control transfer
-		'0' when inst(15 downto 14) = "10"and inst(10 downto 6)="01011" else	-- store in Mem
+		'0' when inst(15 downto 14) = "10" and inst(10 downto 6)="01011" else	-- store in Mem
 		'1';
-	-- WB mux control
-	inst_out(7) <= '1' when inst(15 downto 14) = "10"and inst(10 downto 6)="01010" else	-- load from Mem
+  
+	-- WB mux control -- /!\ correct this (mux has two bits now)
+	inst_out(7) <= '1' when inst(15 downto 14) = "10" and inst(10 downto 6)="01010" else	-- load from Mem
 		'0'; -- 1 means Memory, 0 means ALU
 	
 	inst_out(12) <= inst(14); -- Whether output is immediate or ALU
@@ -128,7 +129,7 @@ begin
 	-- Possibly overly simplistic
 	inst_out(14) <= inst(10); -- Low or High lc
 	
-	inst_out(15) <= '1' when inst(15 downto 14) = "10"and inst(10 downto 6)="01011" else
+	inst_out(15) <= '1' when inst(15 downto 14) = "10" and inst(10 downto 6)="01011" else
 		'0'; --mem_en
 
 end Behavioral;
