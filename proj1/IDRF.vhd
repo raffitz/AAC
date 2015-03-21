@@ -45,6 +45,7 @@ entity IDRF is
 		wb_wc_we : OUT std_logic;
 		wb_mux : out std_logic_vector(1 downto 0);
 		flags_enable : OUT std_logic;
+		is_jump : out std_logic;
 		jump_cond : out std_logic_vector(3 downto 0);
 		jump_op : out std_logic_vector(1 downto 0);
 		mem_we : OUT std_logic;
@@ -143,6 +144,8 @@ begin
 	
 	mem_we <= '1' when inst(15 downto 14) = "10" and inst(10 downto 6)="01011" else
 		'0'; --mem_en
+		
+	is_jump <= '1' when inst(15 downto 14) = "00" else '0';
 
 end Behavioral;
 
