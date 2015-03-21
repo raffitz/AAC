@@ -122,9 +122,11 @@ begin
 	flags_enable <= '0' when inst(15 downto 14) = "10" and inst(10 downto 7) = "0101" else
 		'0' when inst(15 downto 14) = "00" else '1'; -- Flag WE
 	
-	wb_wc_addr <= inst(13 downto 11);	-- WC addr
+	wb_wc_addr <= "111" when inst(15 downto 11) = "00110" else
+		inst(13 downto 11);	-- WC addr
 	-- WC we
-	wb_wc_we <= '0' when inst(15 downto 14) = "00" else	-- control transfer
+	wb_wc_we <= '1' when inst(15 downto 11) = "00110" else
+		'0' when inst(15 downto 14) = "00" else	-- control transfer
 		'0' when inst(15 downto 14) = "10" and inst(10 downto 6)="01011" else	-- store in Mem
 		'1';
   
