@@ -16,7 +16,7 @@ entity RAM is
 end RAM;
 
 architecture behavioural of RAM is
-	type mem is array(2**14 - 1 downto 0) of std_logic_vector(15 downto 0);
+	type mem is array(0 downto 2**14 - 1) of std_logic_vector(15 downto 0);
 	signal ram_block : mem;
 
 begin

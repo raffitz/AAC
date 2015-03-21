@@ -2,7 +2,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+--use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+use std.textio.all;	-- for file operations
 
 entity imem is
 	port (
@@ -11,12 +13,29 @@ entity imem is
 end imem;
 
 architecture Behavioural of IMem is
-	type rom_type is array (2**14 - 1 downto 0) of std_logic_vector (15 downto 0);                 
-	signal ROM : rom_type := (others => (others => '0'));
+	type RomType is array (0 to 2**14 - 1) of std_logic_vector (15 downto 0);                 
+	--signal ROM : RomType := (others => (others => '0'));
+
+	-- init ROM with contents from a file
+	impure function InitromFromFile (romFileName : in string) return romType is
+		FILE romFile : text is in romFileName;
+		variable romFileLine : line;
+		variable rom : romType;
+		variable good : boolean;
+		variable temp_bv : bit_vector(15 downto 0);
+	begin
+		for i in romType'range loop
+			readline (romFile, romFileLine);
+			read (romFileLine, temp_bv, good);
+			rom(i) := to_stdlogicvector(temp_bv);
+		end loop;
+		return rom;
+	end function; 
+
+	signal ROM : RomType := InitRomFromFile("imem.txt");
 
 begin
 
 	DATA <= ROM(conv_integer(ADDR(13 downto 0)));
 	
-
 end Behavioural;
