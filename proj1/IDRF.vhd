@@ -41,7 +41,16 @@ entity IDRF is
 		RB : out  STD_LOGIC_VECTOR (15 downto 0);
 		const : out  STD_LOGIC_VECTOR (15 downto 0);
 		ALU_op : OUT std_logic_vector(4 downto 0);
-		inst_out : OUT std_logic_vector(15 downto 0);
+		wb_wc_addr : out std_logic_vector(2 downto 0);
+		wb_wc_we : OUT std_logic;
+		wb_mux : out std_logic_vector(1 downto 0);
+		flags_enable : OUT std_logic;
+		jump_cond : out std_logic_vector(3 downto 0);
+		jump_op : out std_logic_vector(1 downto 0);
+		mem_we : OUT std_logic;
+		mux_lcx : OUT std_logic;
+		mux_C : OUT std_logic;
+		mux_const : OUT std_logic;
 		mux_a : OUT std_logic;
 		mux_b : OUT std_logic
 	);
@@ -108,28 +117,29 @@ begin
 		'0' when inst(15 downto 14) = "10" else	-- ALU ops
 		'1';
 	
-	inst_out(3 downto 0) <= inst(11 downto 8); -- jump cond
-	inst_out(5 downto 4) <= inst(13 downto 12); -- jump op
-	inst_out(6) <= '0' when inst(15 downto 14) = "10" and inst(10 downto 7) = "0101" else
+	jump_cond <= inst(11 downto 8); -- jump cond
+	jump_op <= inst(13 downto 12); -- jump op
+	flags_enable <= '0' when inst(15 downto 14) = "10" and inst(10 downto 7) = "0101" else
 		'0' when inst(15 downto 14) = "00" else '1'; -- Flag WE
 	
-	inst_out(11 downto 9) <= inst(13 downto 11);	-- WC addr
+	wb_wc_addr <= inst(13 downto 11);	-- WC addr
 	-- WC we
-	inst_out(8) <= '0' when inst(15 downto 14) = "00" else	-- control transfer
+	wb_wc_we <= '0' when inst(15 downto 14) = "00" else	-- control transfer
 		'0' when inst(15 downto 14) = "10" and inst(10 downto 6)="01011" else	-- store in Mem
 		'1';
   
-	-- WB mux control -- /!\ correct this (mux has two bits now)
-	inst_out(7) <= '1' when inst(15 downto 14) = "10" and inst(10 downto 6)="01010" else	-- load from Mem
-		'0'; -- 1 means Memory, 0 means ALU
+	-- WB mux control
+	wb_mux <= "1X" when inst(15 downto 11) = "00110" else --jal
+		"01" when inst(15 downto 14) = "10" and inst(10 downto 6)="01010" else	-- load from Mem
+		"00"; -- load from ALU
 	
-	inst_out(12) <= inst(14); -- Whether output is immediate or ALU
+	mux_C <= inst(14); -- Whether output is immediate or ALU
 	-- Possi
-	inst_out(13) <= inst(15); -- Complete constant load or high/low part;
+	mux_const <= inst(15); -- Complete constant load or high/low part;
 	-- Possibly overly simplistic
-	inst_out(14) <= inst(10); -- Low or High lc
+	mux_lcx <= inst(10); -- Low or High lc
 	
-	inst_out(15) <= '1' when inst(15 downto 14) = "10" and inst(10 downto 6)="01011" else
+	mem_we <= '1' when inst(15 downto 14) = "10" and inst(10 downto 6)="01011" else
 		'0'; --mem_en
 
 end Behavioral;

@@ -38,7 +38,7 @@ entity ExMem is
 		PC : in  STD_LOGIC_VECTOR (15 downto 0);
 		imm : in  STD_LOGIC_VECTOR (15 downto 0);
 		jump_cond : in STD_LOGIC_VECTOR(3 downto 0);
-		jump_op : in STD_LOGIC_VECTOR(5 downto 4);
+		jump_op : in STD_LOGIC_VECTOR(1 downto 0);
 		flags_reg_we : in STD_LOGIC;
 		wb_addr_in : in STD_LOGIC_VECTOR(2 downto 0);
 		wb_mux_in : in STD_LOGIC_VECTOR (1 downto 0);
@@ -54,8 +54,8 @@ entity ExMem is
 		wb_we_out : out STD_LOGIC;
 		flag_status : out  STD_LOGIC;
 		mem_out : out  STD_LOGIC_VECTOR (15 downto 0);
-		ALU_out : out  STD_LOGIC_VECTOR (15 downto 0)
-		PC_out : out STD_LOGIC_VECTOR (15 downto 0);
+		ALU_out : out  STD_LOGIC_VECTOR (15 downto 0);
+		PC_out : out STD_LOGIC_VECTOR (15 downto 0)
 	);
 end ExMem;
 
@@ -138,7 +138,7 @@ begin
 	ALU_A_in <= A when mux_A = '0' else PC;
 	ALU_B_in <= B when mux_B = '0' else imm;
 
-	lcx <= A(15 downto 8) & imm(7 downto 0) when mux_lcx = '0' else imm(15 downto 8) & A(7 downto 0);
+	lcx <= A(15 downto 8) & imm(7 downto 0) when mux_lcx = '0' else imm(7 downto 0) & A(7 downto 0); -- A sério que puseram imm(15 downto 8)? O que é que beberam quando fizeram isso? Absinto?
 	const <= imm when mux_const = '0' else lcx;
 	ALU_out <= ALU_C_out when mux_C = '0' else const;
 	PC_out <= PC;

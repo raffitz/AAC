@@ -35,17 +35,24 @@ entity WB is
 		alu_data : in  STD_LOGIC_VECTOR (15 downto 0);
 		curr_PC : in  STD_LOGIC_VECTOR (15 downto 0);
 		src_sel : in  STD_LOGIC_VECTOR (1 downto 0);
-		output : out  STD_LOGIC_VECTOR (15 downto 0)
+		reg_addr : in STD_LOGIC_VECTOR (2 downto 0);
+		reg_we : in STD_LOGIC;
+		output : out  STD_LOGIC_VECTOR (15 downto 0);
+		o_addr : out STD_LOGIC_VECTOR (2 downto 0);
+		o_we : out STD_LOGIC
 	);
 end WB;
 
 architecture Behavioral of WB is
 
 begin
-
-	output <= mem_data when src_sel = '01' else
-			  alu_data when src_sel = '00' else
-			  curr_PC when src_sel(1) = '1';
+	o_addr <= reg_addr;
+	
+	o_we <= reg_we;
+	
+	output <= mem_data when src_sel = "01" else
+			  alu_data when src_sel = "00" else
+			  curr_PC;
 
 end Behavioral;
 
