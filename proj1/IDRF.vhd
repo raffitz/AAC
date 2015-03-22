@@ -141,7 +141,7 @@ begin
 		"01" when inst(15 downto 14) = "10" and inst(10 downto 6)="01010" else	-- load from Mem
 		"00"; -- load from ALU
 	
-	mux_C <= '0' when inst(15 downto 14) = "11" else -- Quando é lcl ou lch
+	mux_C <= '1' when inst(15 downto 14) = "11" else -- Quando é lcl ou lch
 		'1' when inst(14) = '1' else
 		'0'; -- Whether output is immediate or ALU
 	-- Possi
