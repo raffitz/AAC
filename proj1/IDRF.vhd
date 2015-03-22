@@ -83,13 +83,13 @@ architecture Behavioral of IDRF is
 		);
 	END COMPONENT;
 
-
+	signal a_addr : std_logic_vector(2 downto 0);
 begin
 	
 	PC_out <= PC_in;
 	
 	Inst_RF: RF PORT MAP(
-		Aaddr => inst(5 downto 3),
+		Aaddr => a_addr,
 		Baddr => inst(2 downto 0),
 		A => RA,
 		B => RB,
@@ -108,10 +108,12 @@ begin
 		extended => const
 	);
 	
-	
+	a_addr <= inst(13 downto 11) when inst(15 downto 14)="11" else -- Quando é lcl ou lch
+		inst(5 downto 3);
 
 	ALU_op <= "10011" when inst(15 downto 12) = "0011" else -- absolute jumps
 		"00001" when inst(15 downto 14) = "00" else -- relative jumps
+		"00000" when inst(15 downto 14) = "11" else -- lcl e lch
 		inst(10 downto 6);
 
 	mux_a <= '1' when inst(15 downto 14) = "00" else	-- control transfer
@@ -139,7 +141,9 @@ begin
 		"01" when inst(15 downto 14) = "10" and inst(10 downto 6)="01010" else	-- load from Mem
 		"00"; -- load from ALU
 	
-	mux_C <= inst(14); -- Whether output is immediate or ALU
+	mux_C <= '0' when inst(15 downto 14) = "11" else -- Quando é lcl ou lch
+		'1' when inst(14) = '1' else
+		'0'; -- Whether output is immediate or ALU
 	-- Possi
 	mux_const <= inst(15); -- Complete constant load or high/low part;
 	-- Possibly overly simplistic
