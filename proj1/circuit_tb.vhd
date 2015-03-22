@@ -43,8 +43,7 @@ ARCHITECTURE behavior OF circuit_tb IS
     PORT(
          clk : IN  std_logic;
          rst : IN  std_logic;
-         output : OUT  std_logic_vector(15 downto 0);
-         flag : OUT  std_logic
+         output : OUT  std_logic_vector(15 downto 0)
         );
     END COMPONENT;
     
@@ -55,7 +54,6 @@ ARCHITECTURE behavior OF circuit_tb IS
 
  	--Outputs
    signal output : std_logic_vector(15 downto 0);
-   signal flag : std_logic;
 
    -- Clock period definitions
    constant clk_period : time := 10 ns;
@@ -66,8 +64,7 @@ BEGIN
    uut: circuit PORT MAP (
           clk => clk,
           rst => rst,
-          output => output,
-          flag => flag
+          output => output
         );
 
    -- Clock process definitions
