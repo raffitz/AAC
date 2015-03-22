@@ -36,6 +36,7 @@ entity FT is
 		cond: in std_logic_vector(3 downto 0);
 		op: in std_logic_vector(1 downto 0);
 		en : in std_logic;
+		jump_en : in std_logic;
 		flags_out: out std_logic_vector(3 downto 0);
 		s: out std_logic
 	);
@@ -63,7 +64,7 @@ begin
 		jfalse when '0',
 		jtrue when others;
 
-	s <= buffers;
+	s <= buffers when jump_en = '1' else '0';
 
 	process(clk, en)
 	begin

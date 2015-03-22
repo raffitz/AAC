@@ -40,6 +40,7 @@ entity ExMem is
 		jump_cond : in STD_LOGIC_VECTOR(3 downto 0);
 		jump_op : in STD_LOGIC_VECTOR(1 downto 0);
 		flags_reg_we : in STD_LOGIC;
+		jump_en : in STD_LOGIC;
 		wb_addr_in : in STD_LOGIC_VECTOR(2 downto 0);
 		wb_mux_in : in STD_LOGIC_VECTOR (1 downto 0);
 		wb_we_in : in STD_LOGIC;
@@ -89,6 +90,7 @@ architecture Behavioral of ExMem is
 			cond : IN std_logic_vector(3 downto 0);
 			op : IN std_logic_vector(1 downto 0);          
 			en : IN std_logic;
+			jump_en : IN std_logic;
 			flags_out : OUT std_logic_vector(3 downto 0);
 			s : OUT std_logic
 		);
@@ -131,6 +133,7 @@ begin
 		cond => jump_cond,
 		op => jump_op,
 		en => flags_reg_we,
+		jump_en => jump_en,
 		flags_out => ALU_flagsin,
 		s => flag_status
 	);

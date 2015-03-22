@@ -81,6 +81,7 @@ architecture Behavioral of circuit is
 			wb_wc_we : OUT std_logic;
 			wb_mux : out std_logic_vector(1 downto 0);
 			flags_enable : OUT std_logic;
+			is_jump : out std_logic;
 			jump_cond : out std_logic_vector(3 downto 0);
 			jump_op : out std_logic_vector(1 downto 0);
 			mem_we : OUT std_logic;
@@ -103,6 +104,7 @@ architecture Behavioral of circuit is
 			jump_cond : IN std_logic_vector(3 downto 0);
 			jump_op : IN std_logic_vector(1 downto 0);
 			flags_reg_we : IN std_logic;
+			jump_en : IN std_logic;
 			wb_addr_in : IN std_logic_vector(2 downto 0);
 			wb_mux_in : IN std_logic_vector(1 downto 0);
 			wb_we_in : IN std_logic;
@@ -162,6 +164,7 @@ architecture Behavioral of circuit is
 	signal idrf_wb_wc_we_out : std_logic;
 	signal idrf_wb_mux_out : std_logic_vector(1 downto 0);
 	signal idrf_flags_enable_out : std_logic;
+	signal idrf_is_jump_out : std_logic;
 	signal idrf_jump_cond_out : std_logic_vector(3 downto 0);
 	signal idrf_jump_op_out : std_logic_vector(1 downto 0);
 	signal idrf_mem_we_out : std_logic;
@@ -194,6 +197,7 @@ architecture Behavioral of circuit is
 
 	signal exmem_jump_op_in : std_logic_vector(1 downto 0);
 	signal exmem_flags_reg_we_in : std_logic;
+	signal exmem_jump_en_in : std_logic;
 	signal exmem_wb_addr_in : std_logic_vector(2 downto 0);
 	signal exmem_wb_mux_in : std_logic_vector(1 downto 0);
 	signal exmem_mux_c_in : std_logic;
@@ -258,6 +262,7 @@ begin
 		wb_wc_we => idrf_wb_wc_we_out,
 		wb_mux => idrf_wb_mux_out,
 		flags_enable => idrf_flags_enable_out,
+		is_jump => idrf_is_jump_out,
 		jump_cond => idrf_jump_cond_out,
 		jump_op => idrf_jump_op_out,
 		mem_we => idrf_mem_we_out,
@@ -278,6 +283,7 @@ begin
 		jump_cond => exmem_jump_cond_in,
 		jump_op => exmem_jump_op_in,
 		flags_reg_we => exmem_flags_reg_we_in,
+		jump_en => exmem_jump_en_in,
 		wb_addr_in => exmem_wb_addr_in,
 		wb_mux_in => exmem_wb_mux_in,
 		wb_we_in => exmem_wb_we_in,
@@ -333,6 +339,7 @@ begin
 				exmem_jump_cond_in <= idrf_jump_cond_out;
 				exmem_jump_op_in <= idrf_jump_op_out;
 				exmem_flags_reg_we_in <= idrf_flags_enable_out;
+				exmem_jump_en_in <= idrf_is_jump_out;
 				exmem_wb_mux_in <= idrf_wb_mux_out;
 				exmem_wb_we_in <= idrf_wb_wc_we_out;
 				exmem_wb_addr_in <= idrf_wb_wc_addr_out;
