@@ -110,7 +110,8 @@ begin
 	
 	
 
-	ALU_op <= "10011" when inst(15 downto 14) = "00" else -- jumps
+	ALU_op <= "10011" when inst(15 downto 13) = "001" else -- absolute jumps
+		"00000" when inst(15 downto 14) = "00" else -- relative jumps
 		inst(10 downto 6);
 	mux_a <= '1' when inst(15 downto 14) = "00" else	-- control transfer
 		'0'; -- Possibly overly simplistic
