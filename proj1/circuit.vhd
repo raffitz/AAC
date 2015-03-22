@@ -33,8 +33,7 @@ entity circuit is
 	Port (
 		clk : in STD_LOGIC;
 		rst : in STD_LOGIC;
-		output : out STD_LOGIC_VECTOR(15 downto 0);
-		flag : out STD_LOGIC
+		output : out STD_LOGIC_VECTOR(15 downto 0)
 	);
 end circuit;
 
