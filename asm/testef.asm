@@ -2,8 +2,8 @@
 .pseg
 main:
 		; flags are S, C, Z, V
-		lcl r0, 0xFF
-		lch r0, 0xFF
+		lcl r0, 255
+		lch r0, 255
 		loadlit r1, 1
 		add r0, r0, r1	; C, Z
 		nop
@@ -28,7 +28,7 @@ J10:	jt.zero X11
 J11:	deca r0, r0 ; S
 		zeros r0
 		and r0, r0, r0	; Z
-		lch r0, 0x8
+		lch r0, 128
 		zeros r1
 		or r0, r0, r1	; S
 		inca r1, r1	; clear all flags
@@ -44,8 +44,8 @@ A1:		deca r2, r2	; S
 		nop
 		nop
 		nop
-		lcl r0, 0xFF
-		lch r0, 0x7F	; r0 has max positive value
+		lcl r0, 255
+		lch r0, 127	; r0 has max positive value
 		inca r0, r0	; S, V
 		zeros r1	; does not change flags
 		passb r1, r1	; does not change flags
