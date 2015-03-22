@@ -1,22 +1,4 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    00:01:15 03/11/2015 
--- Design Name: 
--- Module Name:    FT - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -36,7 +18,6 @@ entity FT is
 		cond: in std_logic_vector(3 downto 0);
 		op: in std_logic_vector(1 downto 0);
 		en : in std_logic;
-		jump_en : in std_logic;
 		flags_out: out std_logic_vector(3 downto 0);
 		s: out std_logic
 	);
@@ -64,7 +45,7 @@ begin
 		jfalse when '0',
 		jtrue when others;
 
-	s <= buffers when jump_en = '1' else '0';
+	s <= buffers;
 
 	process(clk, en)
 	begin

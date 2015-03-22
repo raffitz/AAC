@@ -1,22 +1,4 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    22:50:45 03/12/2015 
--- Design Name: 
--- Module Name:    ExMem - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -40,7 +22,7 @@ entity ExMem is
 		jump_cond : in STD_LOGIC_VECTOR(3 downto 0);
 		jump_op : in STD_LOGIC_VECTOR(1 downto 0);
 		flags_reg_we : in STD_LOGIC;
-		jump_en : in STD_LOGIC;
+		is_jump : in STD_LOGIC;
 		wb_addr_in : in STD_LOGIC_VECTOR(2 downto 0);
 		wb_mux_in : in STD_LOGIC_VECTOR (1 downto 0);
 		wb_we_in : in STD_LOGIC;
@@ -90,7 +72,6 @@ architecture Behavioral of ExMem is
 			cond : IN std_logic_vector(3 downto 0);
 			op : IN std_logic_vector(1 downto 0);          
 			en : IN std_logic;
-			jump_en : IN std_logic;
 			flags_out : OUT std_logic_vector(3 downto 0);
 			s : OUT std_logic
 		);
@@ -104,6 +85,9 @@ architecture Behavioral of ExMem is
 
 	signal const : std_logic_vector(15 downto 0);
 	signal lcx : std_logic_vector(15 downto 0);
+
+	signal FT_result : std_logic;
+	signal jump : std_logic;
 
 begin
 	wb_addr_out <= wb_addr_in;
@@ -133,18 +117,22 @@ begin
 		cond => jump_cond,
 		op => jump_op,
 		en => flags_reg_we,
-		jump_en => jump_en,
 		flags_out => ALU_flagsin,
-		s => flag_status
+		s => FT_result
 	);
 
 	ALU_A_in <= A when mux_A = '0' else PC;
 	ALU_B_in <= B when mux_B = '0' else imm;
 
-	lcx <= A(15 downto 8) & imm(7 downto 0) when mux_lcx = '0' else imm(7 downto 0) & A(7 downto 0); -- A sério que puseram imm(15 downto 8)? O que é que beberam quando fizeram isso? Absinto?
+	lcx <= A(15 downto 8) & imm(7 downto 0) when mux_lcx = '0' else imm(7 downto 0) & A(7 downto 0);
 	const <= imm when mux_const = '0' else lcx;
 	ALU_out <= ALU_C_out when mux_C = '0' else const;
 	PC_out <= PC;
+
+	jump <= '0' when is_jump = '0' else
+		FT_result when jump_op(1) = '0' else '1';
+
+	flag_status <= jump;
 
 end Behavioral;
 
