@@ -68,6 +68,7 @@ architecture Behavioral of IFetch is
 
 	signal en : STD_LOGIC;
 	signal pcout : STD_LOGIC_VECTOR(15 downto 0);
+	signal pc_inc : STD_LOGIC_VECTOR(15 downto 0);
 	signal pcin : STD_LOGIC_VECTOR(15 downto 0);
 begin
 
@@ -88,8 +89,8 @@ begin
 		D => pcin,
 		Q => pcout
 	);
-
-	pcin <= pcout + 1 when jsel = '0' else jaddr;
-	addr <= pcin;
+	pc_inc <= pcout + 1;
+	pcin <= pc_inc when jsel = '0' else jaddr;
+	addr <= pc_inc;
 
 end Behavioral;

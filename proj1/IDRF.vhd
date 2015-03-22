@@ -112,7 +112,7 @@ begin
 		inst(5 downto 3);
 
 	ALU_op <= "10011" when inst(15 downto 12) = "0011" else -- absolute jumps
-		"00001" when inst(15 downto 14) = "00" else -- relative jumps
+		"00000" when inst(15 downto 14) = "00" else -- relative jumps
 		"00000" when inst(15 downto 14) = "11" else -- lcl e lch
 		inst(10 downto 6);
 
