@@ -65,6 +65,7 @@ begin
 	0-B_ext when "101",
 	'1' & X"FFFF" when others;
 
+	bufferout <= A_ext + operand2;
 
 	flag_v <= '1' when (A_ext(15) = operand2(15)) and (bufferout(15) /= A_ext(15)) else '0';
 	flag_z <= '1' when bufferout(15 downto 0) = X"0000" else '0';
