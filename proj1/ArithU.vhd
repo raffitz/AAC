@@ -50,21 +50,23 @@ architecture Behavioral of ArithU is
 	signal A_ext : std_logic_vector(16 downto 0);
 	signal B_ext : std_logic_vector(16 downto 0);
 
+	signal operand2 : std_logic_vector(16 downto 0);
+
 begin
 
 	A_ext <= '0' & A1;
 	B_ext <= '0' & B1;
 
-	with sel(2 downto 0) select bufferout <=
-	A_ext+B_ext when "000",
-	A_ext+B_ext+1 when "001",
-	A_ext+1 when "011",
-	A_ext-B_ext-1 when "100",
-	A_ext-B_ext when "101",
-	A_ext-1 when others;
+	with sel(2 downto 0) select operand2 <=
+	B_ext when "000",
+	B_ext+1 when "001",
+	'0' & X"0001" when "011",
+	0-B_ext-1 when "100",
+	0-B_ext when "101",
+	'1' & X"FFFF" when others;
 
 
-	flag_v <= '1' when (A_ext(15) = B_ext(15)) and (bufferout(15) /= A_ext(15)) else '0';
+	flag_v <= '1' when (A_ext(15) = operand2(15)) and (bufferout(15) /= A_ext(15)) else '0';
 	flag_z <= '1' when bufferout(15 downto 0) = X"0000" else '0';
 	flag_c <= bufferout(16);
 	flag_s <= bufferout(15);
