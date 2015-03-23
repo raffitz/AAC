@@ -14,6 +14,7 @@ J2:		jt.zero X3
 J3:		jt.overflow X4	; not taken
 J4:		loadlit r2, 1
 		loadlit r1, 0
+		loadlit r0, -1
 		add r2, r1, r2	; clear all flags
 		addinc r0, r1, r0	; C, Z
 		jf.neg X5
@@ -32,12 +33,14 @@ J11:	deca r0, r0 ; S
 		zeros r1
 		or r0, r0, r1	; S
 		inca r1, r1	; clear all flags
-		jf.neg X12	; not taken
-J12:	jf.carry X13	; not taken
-J13:	jf.zero X14	; not taken
-J14:	jf.overflow X15	; not taken
-J15:	ones r2
-		asr r2, r2	; Z
+		jt.neg X12	; not taken
+J12:	jt.carry X13	; not taken
+J13:	jt.zero X14	; not taken
+J14:	jt.overflow X15	; not taken
+J15:	loadlit r2, -1
+		passa r2, r2
+		ones r2
+		asr r2, r2	; C, Z (carry because a 1 is dropped out)
 		jt.zero A1
 		nop
 A1:		deca r2, r2	; S
