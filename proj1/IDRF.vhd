@@ -125,8 +125,11 @@ begin
 	
 	jump_cond <= inst(11 downto 8); -- jump cond
 	jump_op <= inst(13 downto 12); -- jump op
-	flags_enable <= '0' when inst(15 downto 14) = "10" and inst(10 downto 7) = "0101" else
-		'0' when inst(15 downto 14) = "00" else '1'; -- Flag WE
+
+	-- enable flags when this is an ALU op (and not a RAM one)
+	flags_enable <= '1' when inst(15 downto 14) = "10"
+		and inst(10 downto 7) /= "0101" else
+		'0';
 	
 	wb_wc_addr <= "111" when inst(15 downto 11) = "00110" else
 		inst(13 downto 11);	-- WC addr
