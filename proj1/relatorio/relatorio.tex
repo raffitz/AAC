@@ -83,7 +83,9 @@
 			
 			\subsubsection{RAM}
 				
-				O bloco de memória RAM, tal como já foi referido, é endereçável ao nível da palavra, sendo que cada endereço de memória corresponde então a uma palavra de 2 bytes. Se o processador tem 16 bits de endereço, então a capacidade total de memória do processador é de 32 KB. Esta memória funciona com leitura assíncrona e escrita síncrona caso o enable de escrita se encontre activo ($we = '1'$). Quanto à descrição \emph{VHDL}, a memória tem como sinal de entrada $data_in$, de saída $data_out$ e de endereço $addr$, ou seja, para as instruções existentes de acesso à memória temos que podem ser feitas as operações de \texttt{LOAD} e \texttt{STORE}. Quanto à primeira é carregado para um registo $C$ o valor da memória endereçável pelo conteúdo do registo $A$; quanto à segunda instrução é armazenado o conteúdo do registo $B$ no endereço de memória apontado pelo conteúdo do registo $A$.
+				O bloco de memória RAM, tal como já foi referido, é endereçável ao nível da palavra, sendo que cada endereço de memória corresponde então a uma palavra de 2 bytes. Se o processador tem 16 bits de endereço, então a capacidade total de memória do processador é de 32 KB. Esta memória funciona com leitura assíncrona e escrita síncrona caso o enable de escrita se encontre activo ($we = '1'$).
+				
+				Quanto à descrição \emph{VHDL}, a memória tem como sinal de entrada $data_in$, de saída $data_out$ e de endereço $addr$, ou seja, para as instruções existentes de acesso à memória temos que podem ser feitas as operações de \texttt{LOAD} e \texttt{STORE}. Quanto à primeira é carregado para um registo $C$ o valor da memória endereçável pelo conteúdo do registo $A$; quanto à segunda instrução é armazenado o conteúdo do registo $B$ no endereço de memória apontado pelo conteúdo do registo $A$.
 				
 			\subsubsection{Flag Tester}
 			
@@ -91,7 +93,7 @@
 			
 				O componente de Flag Tester serve então para indicar se se deve efectuar um determinado salto ou não dependendo se é instrução de salto ou se as condições de flag são válidas para que se efectue esse salto. Temos então como sinais de entrada as quatro \textit{flags}, o código correspondente à condição de salto, o código da operação a efectuar (para distinguir os vários tipos de salto), um \textit{enable} e como sinais de saída os valores das \textit{flags} armazendos em registos e ainda um sinal $s$ que indicará qual valor de PC a utilizar, se PC+1 ou se um outro valor de PC. Em primeiro lugar é verificada a condição de salto de acordo com os sinais presentes nos registos das \textit{flags}, a operação de salto, e caso se verifique que a condição é verdadeira para o salto indicado, então é colocado $s$ com valor lógico ‘1’. Caso a condição não seja cumprida, é colocado o valor lógico ‘0’. 
 				
-				À saída deste bloco temos ainda lógica adicional para indicar caso não seja uma operação de salto (\textit{mux} regulado por $is_jump$), sendo que se for um jump \texttt{True} ou \texttt{False}, é mandado o sinal proveniente do \emph{Flag Tester}, mas caso seja um outro tipo de salto (por exemplo, \texttt{Inconditional jump}), seja carregado na mesma o valor do salto e não PC+1.
+				À saída deste bloco temos ainda lógica adicional para indicar caso não seja uma operação de salto (\textit{mux} regulado por $is\_jump$), sendo que se for um jump \texttt{True} ou \texttt{False}, é mandado o sinal proveniente do \emph{Flag Tester}, mas caso seja um outro tipo de salto (por exemplo, \texttt{Inconditional jump}), seja carregado na mesma o valor do salto e não PC+1.
 			
 		\subsection{WB}
 		
