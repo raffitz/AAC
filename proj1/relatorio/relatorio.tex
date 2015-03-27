@@ -35,7 +35,7 @@
 	
 	\section{Introdução}
 	
-		Nesta actividade laboratorial pretende-se desenvolver um processador $\mu$RISC com descrição em VHDL. Pretende-se que este processador com arquitectura RISC de 16 bits e funcionamento multi-ciclo execute 42 instruções diferentes, demorando 4 ciclos para completar cada uma. Ao primeiro ciclo (Instruction Fetch-IF), a próxima instrução a ser executada é carregada da memória e armazenada no registo de instruções. No segundo ciclo (Instruction Decode-ID) a instrução anteriormente carregada é descodificada e os operandos são lidos do Register File (RF). O terceiro ciclo (Execution-EX) consiste na execução da instrução e cálculo das condições dos resultados. Por fim, no quarto ciclo (Write Back- WB) os resultados são escritos no RF.
+		Nesta actividade laboratorial pretende-se desenvolver um processador $\mu$RISC com descrição em VHDL. Pretende-se que este processador com arquitectura RISC de 16 bits e funcionamento multi-ciclo execute 42 instruções diferentes, demorando 4 ciclos para completar cada uma. Ao primeiro ciclo (Instruction Fetch - IF), a próxima instrução a ser executada é carregada da memória e armazenada no registo de instruções. No segundo ciclo (Instruction Decode - ID) a instrução anteriormente carregada é descodificada e os operandos são lidos do Register File (RF). O terceiro ciclo (Execution - EX) consiste na execução da instrução e cálculo das condições dos resultados. Por fim, no quarto ciclo (Write Back - WB) os resultados são escritos no RF.
 	
 		Tal como já foi referido, é um processador de 16 bits que contém 8 registos de uso geral, cada um com 16 bits de largura. Existem 42 instruções possíveis de executar, sendo estas compostas por até 3 operandos. Quanto à memória esta é do tipo big endian, sendo endereçável ao nível da palavra.
 	
@@ -50,11 +50,27 @@
 		
 		\subsection{IDRF}
 			
+			Neste módulo são gerados vários sinais de controlo com base na instrução obtida do IF. Para além do mais, com base nessa instrução é também feita a leitura assíncrona dos registos envolvidos na operação (operandos).
 			
+			Entre os sinais de controlo gerados neste bloco encontram-se:
 			
-			
+			\begin{itemize}
+				\item A operação da ALU, que corresponde a uma cadeia de bits da instrução, salvo no caso de se tratar de um salto ou de carregamento de uma constante (nesse caso é passada a operação necessária);
+				\item Os sinais de controlo dos multiplexers das duas entradas da ALU, que variam consoante a operação;
+				\item A condição e o tipo de salto, bem como um sinal a indicar se a instrução é, de facto um salto, ou se estes valores devem ser ignorados;
+				\item Um sinal que só permite a alteração das \textit{flags} quando a instrução é executada ao nível da ALU (por oposição a uma leitura ou escrita da memória);
+				\item Sinais relativos ao carregamento de constantes para a parte \textit{high} ou \textit{low} de um registo, ou para o carregamento de imediatos;
+				\item Um sinal de controlo para a escrita na memória;
+				\item Sinais de controlo a ser passados para o Write Back com o endereço do registo de destino do resultado, bem como os \textit{enables} relevantes.
+			\end{itemize}
 			
 			\subsubsection{RF}
+				
+				O bloco de registos contém 8 registos de 16 bits cada, com dois portos de leitura assíncrona e um porto de escrita síncrona.
+				
+				Os endereços de leitura provêm dos mesmos bits de instrução, excepto quando é feito o carregamento de um só byte para as partes \textit{high} ou \textit{low} da palavra. Nesse caso, o endereço do porto de leitura A é substituído pelo do registo de leitura e escrita.
+				
+				O endereço de escrita vem do Write Back, sendo que o \textit{enable} de escrita deste bloco está ligado ao \textit{enable} do Write Back, e não ao do módulo IDRF.
 			
 		\subsection{EX}
 		
@@ -83,7 +99,7 @@
 			
 			\subsubsection{RAM}
 				
-				O bloco de memória RAM, tal como já foi referido, é endereçável ao nível da palavra, sendo que cada endereço de memória corresponde então a uma palavra de 2 bytes. Se o processador tem 16 bits de endereço, então a capacidade total de memória do processador é de 32 KB. Esta memória funciona com leitura assíncrona e escrita síncrona caso o enable de escrita se encontre activo ($we = '1'$).
+				O bloco de memória RAM, tal como já foi referido, é endereçável ao nível da palavra, sendo que cada endereço de memória corresponde então a uma palavra de 2 bytes. Se o processador tem 16 bits de endereço, então a capacidade total de memória do processador é de 32 KB. Esta memória funciona com leitura assíncrona e escrita síncrona caso o enable de escrita se encontre activo ($we~=~'1'$).
 				
 				Quanto à descrição \emph{VHDL}, a memória tem como sinal de entrada $data_in$, de saída $data_out$ e de endereço $addr$, ou seja, para as instruções existentes de acesso à memória temos que podem ser feitas as operações de \texttt{LOAD} e \texttt{STORE}. Quanto à primeira é carregado para um registo $C$ o valor da memória endereçável pelo conteúdo do registo $A$; quanto à segunda instrução é armazenado o conteúdo do registo $B$ no endereço de memória apontado pelo conteúdo do registo $A$.
 				
