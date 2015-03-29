@@ -67,14 +67,14 @@
 
 			\subsubsection{ROM}
 
-			No caso do \textmu RISC optou-se por usar uma ROM como memória de programa. Esta ROM é endereçada à palavra (16 bits), constituindo cada palavra uma instrução do programa. A ROM é um bloco assíncrono de forma a que mal seja endereçada a instrução seja propagada para a saída. Se ROM fosse síncrona seria necessário esperar até o final do ciclo de relógio para obter a instrução.
+			No caso do \textmu RISC optou-se por usar uma ROM como memória de programa. Esta ROM é endereçada à palavra (16 bits), constituindo cada palavra uma instrução do programa. A ROM é um bloco assíncrono de forma a que assim que é endereçada a instrução é propagada para a saída. Se a ROM fosse síncrona seria necessário esperar até o final do ciclo de relógio para obter a instrução.
 			
 			A ROM utilizada tem 16k palavras. Como o PC tem 16 bits seria possível expandir a ROM até 64k palavras. Criou-se a ROM de forma a que o XST leia um ficheiro de texto que contém as palavras a colocar na mesma. Desta forma, basta fornecer diferentes ficheiros ao XST para que a ROM seja inicializada com diferentes programas.
 			
 			A descrição da ROM pode encontrar-se no ficheiro \texttt{IMem.vhd}.
 
 
-		\subsection{IDRF}
+		\subsection{ID/RF}
 			
 			\begin{figure}[H]
 				\centering
@@ -86,12 +86,14 @@
 			O módulo de Descodificação de Instrução e leitura de operandos dos Registos recebe como parâmetros a instrução retirada da memória de programa, bem como os sinais de escrita nos registos.
 			
 			A descodificação da instrução é feita através de lógica (sendo que foram apenas descritos os seus aspectos funcionais, e deixada a sua implementação para o sintetizador). A maioria dos sinais de controlo a jusante no caminho de dados é então determinada neste módulo, com base nos \textit{opcodes} e nos operandos das instruções.
+
+			O esquema do ID/RF pode ser visto na \autoref{fig:idrf}.
 			
 			\subsubsection{RF}
 			
 			O \textit{Register File} é um bloco de 8 registos de 16 bits cada, com dois portos de leitura assíncrona e um porto de escrita síncrono. Os parâmetros do porto de escrita são lidos durante o ciclo de \textit{Write-Back}.
 			
-		\subsection{EX}
+		\subsection{EX/MEM}
 		
 			\begin{figure}[H]
 				\centering
@@ -114,7 +116,7 @@
 				
 				O primeiro sub-componente é responsável por executar qualquer função aritmética: soma, subtração e as suas variantes. É de notar que nestas operações todas as \textit{flags} são actualizadas neste bloco.
 				
-				O componente responsável por fazer os deslocamentos lógicos (shifts) apenas tem que efectuar duas operações: shift aritmético direito e shift lógico esquerdo. Neste bloco são actualizadas as \textit{flags} de signal, zero e carry.
+				O componente responsável por fazer os deslocamentos lógicos (shifts) apenas tem que efectuar duas operações: shift aritmético direito e shift lógico esquerdo. Neste bloco são actualizadas as \textit{flags} de \textit{signal}, \textit{zero} e \textit{carry}.
 				
 				Por último, a unidade lógica é responsável por efectuar todas as operações lógicas: \texttt{and}, \texttt{or}, \texttt{xor}, \texttt{pass}, \texttt{nor}, \texttt{nand}, entre outras. Neste componente, por a actualização das \textit{flags} ser independente de operação para operação, é apenas feita a actualização das que forem necessárias (zero, signal ou nenhuma).
 			
@@ -204,6 +206,7 @@
 	%\nocite{xilinx}
 	%\bibliography{xilinx}	% no spaces between commas!
 	
+	\vspace{3cm}
 	\begin{thebibliography}{13}
 	\bibitem{bib:XSTUG11_3}
 		Xilinx\textregistered,
