@@ -118,7 +118,7 @@
 			
 				Quanto à actualização das \textit{flags}, tal como já foi referido, o método utilizado baseia-se em actualizar apenas as \textit{flags} necessárias, ou seja, todas as \textit{flags} guardadas entram dentro da ALU, mas dependendo da instrução a executar, é feita uma concatenação das \textit{flags} a actualizar com as que não serão actualizadas. No entanto, no caso de ser uma operação aritmética, todas as \textit{flags} são actualizadas.
 			
-				O componente de Flag Tester serve então para indicar se se deve efectuar um determinado salto ou não dependendo se é instrução de salto ou se as condições de flag são válidas para que se efectue esse salto. Temos então como sinais de entrada as quatro \textit{flags}, o código correspondente à condição de salto, o código da operação a efectuar (para distinguir os vários tipos de salto), um \textit{enable} e como sinais de saída os valores das \textit{flags} armazendos em registos e ainda um sinal \texttt{s} que indica qual valor de PC a utilizar, se PC+1 ou se um outro valor de PC. Em primeiro lugar é verificada a condição de salto de acordo com os sinais presentes nos registos das \textit{flags}, a operação de salto, e caso se verifique que a condição é verdadeira para o salto indicado, então é colocado \texttt{s} com valor lógico ‘1’. Caso a condição não seja cumprida, é colocado o valor lógico ‘0’. 
+				O componente de Flag Tester serve então para indicar se se deve efectuar um determinado salto ou não dependendo se é instrução de salto ou se as condições de flag são válidas para que se efectue esse salto. Temos então como sinais de entrada as quatro \textit{flags}, o código correspondente à condição de salto, o código da operação a efectuar (para distinguir os vários tipos de salto), um \textit{enable} e como sinais de saída os valores das \textit{flags} armazendos em registos e ainda um sinal \texttt{s} que indica qual valor de PC a utilizar, se PC+1 ou se um outro valor de PC. Em primeiro lugar é verificada a condição de salto de acordo com os sinais presentes nos registos das \textit{flags}, a operação de salto, e caso se verifique que a condição é verdadeira para o salto indicado, então é colocado \texttt{s} com valor lógico `1'. Caso a condição não seja cumprida, é colocado o valor lógico `0'. 
 				
 				À saída deste bloco temos ainda lógica adicional para indicar caso não seja uma operação de salto (\textit{mux} regulado por \texttt{is\_jump}), sendo que se for um jump \texttt{True} ou \texttt{False}, é mandado o sinal proveniente do \emph{Flag Tester}, mas caso seja um outro tipo de salto (por exemplo, \texttt{Inconditional jump}), seja carregado na mesma o valor do salto e não PC+1.
 			
@@ -143,7 +143,12 @@
 		
 	\section{Testes e Simulações}
 	
+		Para testar o \textmu RISC foram utilizados vários programas escritos em \textit{assembly}. Alguns programas foram fornecidos pelo professor, nomeadamente um que calcula os primeiros 20 números da sequência da Fibonnacci (\autoref{subsec:sim_fib}). Outros foram escritos pelo grupo. Entre estes últimos encontra-se um teste que incide sobre \textit{jumps}, outro sobre \textit{flags}, outro sobre \textit{shifts} e um último sobre \textit{overflows}.
+		
+		Todos os testes utilizados para testar o \textmu RISC bem como \textit{scripts} usados para converter o resultado do \textit{linker} para o formato lido pelo XST para inicializar a ROM encontram-se na pasta \texttt{asm} entregue em conjunto com o presente relatório.
+	
 		\subsection{Fibonacci}
+		\label{subsec:sim_fib}
 		
 	\section{Conclusão}
 	
