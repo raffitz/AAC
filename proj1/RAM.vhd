@@ -3,6 +3,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
+use std.textio.all;	-- for file operations
 
 entity RAM is
 	port
@@ -16,19 +17,39 @@ entity RAM is
 end RAM;
 
 architecture behavioural of RAM is
-	type mem is array(0 to 2**14 - 1) of std_logic_vector(15 downto 0);
-	signal ram_block : mem;
+	type RamType is array(0 to 2**14 - 1) of std_logic_vector(15 downto 0);
+	-- signal RAM : RamType;
+
+	-- init ram with contents from a file
+	impure function InitramFromFile (ramFileName : in string) return ramType is
+		FILE ramFile : text is in ramFileName;
+		variable ramFileLine : line;
+		variable ram : ramType;
+		variable good : boolean;
+		variable temp_bv : bit_vector(15 downto 0);
+	begin
+		for i in ramType'range loop
+			readline (ramFile, ramFileLine);
+			read (ramFileLine, temp_bv, good);
+			ram(i) := to_stdlogicvector(temp_bv);
+		end loop;
+		return ram;
+	end function; 
+
+	signal ram : ramType := InitramFromFile("imem.txt");
+
+
 
 begin
 	process (clk)
 	begin
 		if (clk'event and clk = '1') then
 			if (we = '1') then
-				ram_block(conv_integer(addr(13 downto 0))) <= data_in;
+				RAM(conv_integer(addr(13 downto 0))) <= data_in;
 			end if;
 		end if;
 	end process;
 
-	data_out <= ram_block(conv_integer(addr(13 downto 0)));
+	data_out <= RAM(conv_integer(addr(13 downto 0)));
 
 end behavioural;

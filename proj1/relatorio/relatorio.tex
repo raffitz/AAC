@@ -39,7 +39,7 @@
 	
 	\section{Introdução}
 	
-		Nesta actividade laboratorial pretende-se desenvolver um processador \textmu RISC com descrição em VHDL. Pretende-se que este processador com arquitectura RISC de 16 bits e funcionamento multi-ciclo execute 42 instruções diferentes, demorando 4 ciclos para completar cada uma. No primeiro ciclo (Instruction Fetch--IF), a próxima instrução a ser executada é carregada da memória e armazenada no registo de instruções. No segundo ciclo (Instruction Decode--ID) a instrução anteriormente carregada é descodificada e os operandos são lidos do Register File (RF). O terceiro ciclo (Execution--EX) consiste na execução da instrução e cálculo das condições dos resultados. Por fim, no quarto ciclo (Write Back--WB) os resultados são escritos no RF.
+		Nesta actividade laboratorial pretende-se desenvolver um processador \textmu RISC com descrição em VHDL. Pretende-se que este processador com arquitectura RISC de 16 bits e funcionamento multi-ciclo execute 42 instruções diferentes, demorando 4 ciclos para completar cada uma. No primeiro ciclo (Instruction Fetch--IF) a próxima instrução a ser executada é carregada da memória e armazenada no registo de instruções. No segundo ciclo (Instruction Decode--ID) a instrução anteriormente carregada é descodificada e os operandos são lidos do Register File (RF). O terceiro ciclo (Execution--EX) consiste na execução da instrução e cálculo das condições dos resultados. Por fim, no quarto ciclo (Write Back--WB) os resultados são escritos no RF.
 	
 		Tal como já foi referido, é um processador de 16 bits que contém 8 registos de uso geral, cada um com 16 bits de largura. Existem 42 instruções possíveis de executar, sendo estas compostas por até 3 operandos. Quanto à memória esta é do tipo big endian, sendo endereçável ao nível da palavra.
 	
@@ -174,14 +174,31 @@
 		
 	\section{Testes e Simulações}
 	
-		Para testar o \textmu RISC foram utilizados vários programas escritos em \textit{assembly}. Alguns programas foram fornecidos pelo professor, nomeadamente um que calcula os primeiros 20 números da sequência da Fibonnacci (\autoref{subsec:sim_fib}). Outros foram escritos pelo grupo. Entre estes últimos encontra-se um teste que incide sobre \textit{jumps}, outro sobre \textit{flags}, outro sobre \textit{shifts} e um último sobre \textit{overflows}.
+		Para testar o \textmu RISC foram utilizados vários programas escritos em \textit{assembly}. Alguns programas foram fornecidos pelo professor, nomeadamente um que calcula os primeiros 20 números da sequência da Fibonacci (\autoref{subsec:sim_fib}). Outros foram escritos pelo grupo. Entre estes últimos encontra-se um teste que incide sobre \textit{jumps}, outro sobre \textit{flags}, outro sobre \textit{shifts} e um último sobre \textit{overflows}.
 		
 		Todos os testes utilizados para testar o \textmu RISC bem como \textit{scripts} usados para converter o resultado do \textit{linker} para o formato lido pelo XST para inicializar a ROM encontram-se na pasta \texttt{asm} entregue em conjunto com o presente relatório.
 	
 		\subsection{Fibonacci}
 		\label{subsec:sim_fib}
 		
+			Um dos ficheiros de teste fornecidos pelo professor consiste num programa que calcula os primeiros 20 números da sequência de Fibonacci. A forma como esse programa está feito requer que algumas das posições da memória de programa sejam alteradas. Como a arquitectura desenvolvida usa uma ROM para armazenar o programa contornou-se o problema inicializando a RAM com o mesmo conteúdo que a ROM. Na \autoref{fig:sim_fibonacci} pode ver-se a sequência de Finonnaci armazena na RAM após a execução do programa.
+			
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{img/sim_fibonacci}
+				\caption{Sequência de Fibonacci em memória após execução do programa}
+				\label{fig:sim_fibonacci}
+			\end{figure}
+
+		
 	\section{Conclusão}
+
+		Com este trabalho experimental o grupo conseguiu desenvolver um processador \textmu RISC especificado em VHDL, recorrendo para isso à ferramenta Xilinx. Este processador de funcionamento multi-ciclo permitia a execução de programas em \textit{assembly}, executando para isso até 42 instruções diferentes.
+		
+		Todos os testes e simulações realizados (testes de operações, \textit{jumps}, \textit{flags}, entre outros) permitiram concluir que o processador desenvolvido foi concluído com sucesso. O processador passou também nos testes do professor feitos durante a demonstração.
+		
+		Em suma, este trabalho laboratorial permitiu ao grupo consolidar os conceitos aprendidos durante as aulas teóricas sobre o funcionamento deste tipo de processadores.
+
 
 	\bibliographystyle{plain}
 	%\nocite{xilinx}
