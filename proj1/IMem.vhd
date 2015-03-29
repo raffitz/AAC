@@ -1,4 +1,5 @@
 -- program memory ROM
+-- the program instructions are read from a file "imem.txt". This file must have one line per word of the ROM. Each instruction is represented as a string of 0s and 1s
 
 library ieee;
 use ieee.std_logic_1164.all;
