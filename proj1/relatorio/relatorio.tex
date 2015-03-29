@@ -75,11 +75,20 @@
 
 		\subsection{IDRF}
 			
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=.8\textwidth]{img/idrf}
+				\caption{Instruction Decoder & Register File}
+				\label{fig:idrf}
+			\end{figure}
 			
+			O módulo de Descodificação de Instrução e leitura de operandos dos Registos recebe como parâmetros a instrução retirada da memória de programa, bem como os sinais de escrita nos registos.
 			
-			
+			A descodificação da instrução é feita através de lógica (sendo que foram apenas descritos os seus aspectos funcionais, e deixada a sua implementação para o sintetizador). A maioria dos sinais de controlo a jusante no caminho de dados é então determinada neste módulo, com base nos \textit{opcodes} e nos operandos das instruções.
 			
 			\subsubsection{RF}
+			
+			O \textit{Register File} é um bloco de 8 registos de 16 bits cada, com dois portos de leitura assíncrona e um porto de escrita síncrono. Os parâmetros do porto de escrita são lidos durante o ciclo de \textit{Write-Back}.
 			
 		\subsection{EX}
 		
