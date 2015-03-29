@@ -68,7 +68,7 @@
 
 			No caso do \textmu RISC optou-se por usar uma ROM como memória de programa. Esta ROM é endereçada à palavra (16 bits), constituindo cada palavra uma instrução do programa. A ROM é um bloco assíncrono de forma a que mal seja endereçada a instrução seja propagada para a saída. Se ROM fosse síncrona seria necessário esperar até o final do ciclo de relógio para obter a instrução.
 			
-			A ROM utilizada tem 16K palavras. Como o PC tem 16 bits seria possível expandir a ROM até 64K palavras. Criou-se a ROM de forma a que o XST leia um ficheiro de texto que contém as palavras a colocar na mesma. Desta forma, basta fornecer diferentes ficheiros ao XST para que a ROM seja inicializada com diferentes programas.
+			A ROM utilizada tem 16k palavras. Como o PC tem 16 bits seria possível expandir a ROM até 64k palavras. Criou-se a ROM de forma a que o XST leia um ficheiro de texto que contém as palavras a colocar na mesma. Desta forma, basta fornecer diferentes ficheiros ao XST para que a ROM seja inicializada com diferentes programas.
 			
 			A descrição da ROM pode encontrar-se no ficheiro \texttt{IMem.vhd}.
 
