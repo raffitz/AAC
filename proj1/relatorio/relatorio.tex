@@ -9,7 +9,7 @@
 	\trSetImage{img/tecnico_logo}{6cm} % Logotipo do Técnico
 	\trSetSubject{Arquitecturas Avançadas de Computadores}
 	\trSetType{Laboratório I}
-	\trSetTitle{Simulação de um microprocessador \textmu RISC com funcionamento multi-ciclo}
+	\trSetTitle{Simulação de um Microprocessador \textmu RISC com Funcionamento Multi-ciclo}
 	
 	\trSetBoxStyle{0.3}
 	
@@ -38,7 +38,6 @@
 	
 	\section{Introdução}
 	
-
 		Nesta actividade laboratorial pretende-se desenvolver um processador \textmu RISC com descrição em VHDL. Pretende-se que este processador com arquitectura RISC de 16 bits e funcionamento multi-ciclo execute 42 instruções diferentes, demorando 4 ciclos para completar cada uma. No primeiro ciclo (Instruction Fetch--IF), a próxima instrução a ser executada é carregada da memória e armazenada no registo de instruções. No segundo ciclo (Instruction Decode--ID) a instrução anteriormente carregada é descodificada e os operandos são lidos do Register File (RF). O terceiro ciclo (Execution--EX) consiste na execução da instrução e cálculo das condições dos resultados. Por fim, no quarto ciclo (Write Back--WB) os resultados são escritos no RF.
 	
 		Tal como já foi referido, é um processador de 16 bits que contém 8 registos de uso geral, cada um com 16 bits de largura. Existem 42 instruções possíveis de executar, sendo estas compostas por até 3 operandos. Quanto à memória esta é do tipo big endian, sendo endereçável ao nível da palavra.
@@ -69,34 +68,18 @@
 
 			No caso do \textmu RISC optou-se por usar uma ROM como memória de programa. Esta ROM é endereçada à palavra (16 bits), constituindo cada palavra uma instrução do programa. A ROM é um bloco assíncrono de forma a que mal seja endereçada a instrução seja propagada para a saída. Se ROM fosse síncrona seria necessário esperar até o final do ciclo de relógio para obter a instrução.
 			
-			A ROM utilizada tem 16K palavras. Como o PC tem 16 bits seria possível expandir a ROM até 64K palavras. Criou-se a ROM de forma a que o XST leia um ficheiro de texto que contém as palavras a colocar na mesma. Desta forma, basta fornecer diferentes ficheiros ao XST para que a ROM seja inicializada com diferentes programas.
+			A ROM utilizada tem 16k palavras. Como o PC tem 16 bits seria possível expandir a ROM até 64k palavras. Criou-se a ROM de forma a que o XST leia um ficheiro de texto que contém as palavras a colocar na mesma. Desta forma, basta fornecer diferentes ficheiros ao XST para que a ROM seja inicializada com diferentes programas.
 			
 			A descrição da ROM pode encontrar-se no ficheiro \texttt{IMem.vhd}.
 
 
 		\subsection{IDRF}
 			
-			Neste módulo são gerados vários sinais de controlo com base na instrução obtida do IF. Para além do mais, com base nessa instrução é também feita a leitura assíncrona dos registos envolvidos na operação (operandos).
 			
-			Entre os sinais de controlo gerados neste bloco encontram-se:
 			
-			\begin{itemize}
-				\item A operação da ALU, que corresponde a uma cadeia de bits da instrução, salvo no caso de se tratar de um salto ou de carregamento de uma constante (nesse caso é passada a operação necessária);
-				\item Os sinais de controlo dos multiplexers das duas entradas da ALU, que variam consoante a operação;
-				\item A condição e o tipo de salto, bem como um sinal a indicar se a instrução é, de facto um salto, ou se estes valores devem ser ignorados;
-				\item Um sinal que só permite a alteração das \textit{flags} quando a instrução é executada ao nível da ALU (por oposição a uma leitura ou escrita da memória);
-				\item Sinais relativos ao carregamento de constantes para a parte \textit{high} ou \textit{low} de um registo, ou para o carregamento de imediatos;
-				\item Um sinal de controlo para a escrita na memória;
-				\item Sinais de controlo a ser passados para o Write Back com o endereço do registo de destino do resultado, bem como os \textit{enables} relevantes.
-			\end{itemize}
+			
 			
 			\subsubsection{RF}
-				
-				O bloco de registos contém 8 registos de 16 bits cada, com dois portos de leitura assíncrona e um porto de escrita síncrona.
-				
-				Os endereços de leitura provêm dos mesmos bits de instrução, excepto quando é feito o carregamento de um só byte para as partes \textit{high} ou \textit{low} da palavra. Nesse caso, o endereço do porto de leitura A é substituído pelo do registo de leitura e escrita.
-				
-				O endereço de escrita vem do Write Back, sendo que o \textit{enable} de escrita deste bloco está ligado ao \textit{enable} do Write Back, e não ao do módulo IDRF.
 			
 		\subsection{EX}
 		
@@ -110,7 +93,7 @@
 			\end{figure}
 		
 			Neste módulo são executadas as instruções e calculadas as condições de resultados. Podemos então considerar 3 grandes componentes que funcionam neste ciclo: ALU, Flag Tester e RAM.
-
+			
 			Tal como é visível na \autoref{fig:ex}, podemos ainda considerar lógica adicional, correspondente ao \textit{load} de constantes. Como o processador permite o carregamento de constantes para a parte \textit{high} ou parte \textit{low}, é feita aqui essa concatenação, sendo que depois é feita uma multiplexagem para os restantes casos de carregamento de constantes (que provêm do \textit{Signal Extender} em IDRF).
 		
 			\subsubsection{ALU}
@@ -127,9 +110,9 @@
 			
 			\subsubsection{RAM}
 				
-				O bloco de memória RAM, tal como já foi referido, é endereçável ao nível da palavra, sendo que cada endereço de memória corresponde então a uma palavra de 2 bytes. Se o processador tem 16 bits de endereço, então a capacidade total de memória do processador é de 32 KB. Esta memória funciona com leitura assíncrona e escrita síncrona caso o enable de escrita se encontre activo ($we~=~'1'$).
+				O bloco de memória RAM, tal como já foi referido, é endereçável ao nível da palavra, sendo que cada endereço de memória corresponde então a uma palavra de 2 bytes. Se o processador tem 16 bits de endereço, então a capacidade total de memória do processador é de 32 kB. Esta memória funciona com leitura assíncrona e escrita síncrona caso o enable de escrita se encontre activo (\texttt{we = '1'}).
 				
-				Quanto à descrição VHDL, a memória tem como sinal de entrada \texttt{data\_in}, de saída \texttt{data\_out} e de endereço \texttt{addr}, ou seja, para as instruções existentes de acesso à memória temos que podem ser feitas as operações de \texttt{LOAD} e \texttt{STORE}. Quanto à primeira é carregado para um registo $C$ o valor da memória endereçável pelo conteúdo do registo $A$; quanto à segunda instrução é armazenado o conteúdo do registo $B$ no endereço de memória apontado pelo conteúdo do registo $A$.
+				Quanto à descrição VHDL, a memória tem como sinal de entrada \texttt{data\_in}, de saída \texttt{data\_out} e de endereço \texttt{addr}, ou seja, para as instruções existentes de acesso à memória temos que podem ser feitas as operações de \texttt{load} e \texttt{store}. Quanto à primeira é carregado para um registo $C$ o valor da memória endereçável pelo conteúdo do registo $A$; quanto à segunda instrução é armazenado o conteúdo do registo $B$ no endereço de memória apontado pelo conteúdo do registo $A$.
 				
 			\subsubsection{Flag Tester}
 			
@@ -137,7 +120,7 @@
 			
 				O componente de Flag Tester serve então para indicar se se deve efectuar um determinado salto ou não dependendo se é instrução de salto ou se as condições de flag são válidas para que se efectue esse salto. Temos então como sinais de entrada as quatro \textit{flags}, o código correspondente à condição de salto, o código da operação a efectuar (para distinguir os vários tipos de salto), um \textit{enable} e como sinais de saída os valores das \textit{flags} armazendos em registos e ainda um sinal \texttt{s} que indica qual valor de PC a utilizar, se PC+1 ou se um outro valor de PC. Em primeiro lugar é verificada a condição de salto de acordo com os sinais presentes nos registos das \textit{flags}, a operação de salto, e caso se verifique que a condição é verdadeira para o salto indicado, então é colocado \texttt{s} com valor lógico `1'. Caso a condição não seja cumprida, é colocado o valor lógico `0'. 
 				
-				À saída deste bloco temos ainda lógica adicional para indicar caso não seja uma operação de salto (\textit{mux} regulado por \texttt{is\_jump}), sendo que se for um jump \texttt{True} ou \texttt{False}, é mandado o sinal proveniente do \emph{Flag Tester}, mas caso seja um outro tipo de salto (por exemplo, \texttt{Inconditional jump}), seja carregado na mesma o valor do salto e não PC+1.
+				À saída deste bloco temos ainda lógica adicional para indicar caso não seja uma operação de salto (\textit{mux} regulado por \texttt{is\_jump}), sendo que se for um \texttt{jump true} ou \texttt{jump false}, é enviado o sinal proveniente do \emph{Flag Tester}, mas caso seja um outro tipo de salto (salto incondicional, por exemplo), seja carregado na mesma o valor do salto e não PC+1.
 			
 				
 		\subsection{WB}
@@ -168,5 +151,9 @@
 		\label{subsec:sim_fib}
 		
 	\section{Conclusão}
-	
+
+	\bibliographystyle{plain}
+	\nocite{xilinx}
+	\bibliography{xilinx}	% no spaces between commas!
+
 \end{document}
