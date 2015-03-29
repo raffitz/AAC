@@ -141,6 +141,15 @@
 
 		\subsection{Máquina de Estados}
 		
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=.8\textwidth]{img/maqestados}
+				\caption{Máquina de Estados que regula os enables dos andares de registos}
+				\label{fig:maqestados}
+			\end{figure}
+		
+			De maneira a sincronizar os andares de registos dos vários módulos, foi adicionada uma Máquina de Estados de Moore muito simples, com quatro estados sequenciais consecutivos, cada um correspondente a um dos andares do microprocessador (ver \autoref{fig:maquestados}).
+		
 	\section{Testes e Simulações}
 	
 		Para testar o \textmu RISC foram utilizados vários programas escritos em \textit{assembly}. Alguns programas foram fornecidos pelo professor, nomeadamente um que calcula os primeiros 20 números da sequência da Fibonnacci (\autoref{subsec:sim_fib}). Outros foram escritos pelo grupo. Entre estes últimos encontra-se um teste que incide sobre \textit{jumps}, outro sobre \textit{flags}, outro sobre \textit{shifts} e um último sobre \textit{overflows}.
