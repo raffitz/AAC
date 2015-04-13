@@ -39,17 +39,6 @@ end circuit;
 
 architecture Behavioral of circuit is
 
-	COMPONENT TGC
-		PORT(
-				clk : IN std_logic;
-				rst : IN std_logic;          
-				IF_e : OUT std_logic;
-				IDRF_e : OUT std_logic;
-				EXM_e : OUT std_logic;
-				WB_e : OUT std_logic
-			);
-	END COMPONENT;
-
 	COMPONENT IFetch
 		PORT(
 			clk : IN std_logic;
@@ -313,14 +302,11 @@ begin
 		o_we => wb_o_we
 	);
 	
-	Inst_TGC: TGC PORT MAP(
-		clk => clk,
-		rst => rst,
-		IF_e => IF_e,
-		IDRF_e => IDRF_e,
-		EXM_e => EXM_e,
-		WB_e => WB_e
-	);
+
+	IF_e <= '1';
+	IDRF_e <= '1';
+	EXM_e <= '1';
+	WB_e <= '1';
 
 	process(clk, IF_e, IDRF_e, EXM_e, WB_e)
 	begin
@@ -366,7 +352,7 @@ begin
 	-- Write-back output does not go through registers:
 	idrf_wb_data_in <= wb_output;
 	idrf_wb_addr_in <= wb_o_addr;
-	idrf_wb_we_in   <= WB_e and wb_o_we;
+	idrf_wb_we_in   <= wb_o_we;
 	
 	-- Program Counter is updated in the EXM cycle
 	-- (when the jump address is calculated)

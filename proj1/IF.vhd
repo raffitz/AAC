@@ -53,7 +53,7 @@ architecture Behavioral of IFetch is
 	END COMPONENT;
 
 	COMPONENT reg
-		GENERIC(
+	GENERIC(
 		nbits : integer
 	);
 	PORT(
