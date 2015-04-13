@@ -36,6 +36,8 @@ entity IDRF is
 		wb_data : in  STD_LOGIC_VECTOR (15 downto 0);
 		wb_addr : in  STD_LOGIC_VECTOR (2 downto 0);
 		wb_we : in  STD_LOGIC;
+		exmem_wb_addr : in STD_LOGIC_VECTOR(2 downto 0);
+		exmem_wb_we : in STD_LOGIC;
 		PC_out : out  STD_LOGIC_VECTOR (15 downto 0);
 		RA : out  STD_LOGIC_VECTOR (15 downto 0);
 		RB : out  STD_LOGIC_VECTOR (15 downto 0);
@@ -53,7 +55,8 @@ entity IDRF is
 		mux_C : OUT std_logic;
 		mux_const : OUT std_logic;
 		mux_a : OUT std_logic;
-		mux_b : OUT std_logic
+		mux_b : OUT std_logic;
+		halt : OUT std_logic;
 	);
 end IDRF;
 
@@ -84,6 +87,11 @@ architecture Behavioral of IDRF is
 	END COMPONENT;
 
 	signal a_addr : std_logic_vector(2 downto 0);
+	
+	signal depends_a : std_logic;
+	signal depends_b : std_logic;
+	
+	signal op : inst(10 downto 0);
 begin
 	
 	PC_out <= PC_in;
@@ -156,6 +164,30 @@ begin
 		'0'; --mem_en
 		
 	is_jump <= '1' when inst(15 downto 14) = "00" else '0';
+	
+	
+	-- conflict detectedion
+
+	-- /!\
+
+	op <= "10000" when inst(15 downto 14) =/ "10" else inst(10 downto 6);
+	with op select depends_a <= '0' when "10000",
+		'0' when "10011",
+		'0' when "11100",
+		'0' when "11111",
+		'1' when others;
+		
+	with op select depends_b <= '0' when "00011",
+		'0' when "00110",
+		'0' when "01000",
+		'0' when "01001",
+		'0' when "10000",
+		'0' when "10101",
+		'0' when "11010",
+		'0' when "11111",
+		'1' when others;
+
+	halt <= '1' when exmem_wb_we = '1' and (exmem_wb_addr = a_addr or exmem_wb_addr = inst(2 downto 0)) else '0';
 
 end Behavioral;
 

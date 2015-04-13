@@ -62,7 +62,7 @@ begin
 		if (rst = '1') then
 			registers <= (others => (others => '0'));
 		else
-			if (rising_edge(clk) and WE='1') then
+			if (falling_edge(clk) and WE='1') then
 				registers(conv_integer(Daddr)) <= DATA;
 			end if;
 		end if;
