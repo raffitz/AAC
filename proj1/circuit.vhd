@@ -324,44 +324,74 @@ begin
 	EXM_e <= '1';
 	WB_e <= '1';
 
-	process(clk, IF_e, IDRF_e, EXM_e, WB_e)
+	process(clk, rst, IF_e, IDRF_e, EXM_e, WB_e)
 	begin
 		if rising_edge(clk) then
 			
-			if IF_e = '1' then
-				idrf_pc_in <= if_pc_out; 
-				idrf_instr_in <= if_instr_out;
-			end if;
-			if IDRF_e = '1' then
-				exmem_pc_in <= idrf_pc_out;
-				exmem_a_in <= idrf_a_out;
-				exmem_b_in <= idrf_b_out;
-				exmem_const_in <= idrf_const_out;
-				exmem_jump_cond_in <= idrf_jump_cond_out;
-				exmem_jump_op_in <= idrf_jump_op_out;
-				exmem_flags_reg_we_in <= idrf_flags_enable_out;
-				exmem_is_jump_in <= idrf_is_jump_out;
-				exmem_wb_mux_in <= idrf_wb_mux_out;
-				exmem_wb_we_in <= idrf_wb_wc_we_out;
-				exmem_wb_addr_in <= idrf_wb_wc_addr_out;
-				exmem_mux_c_in <= idrf_mux_C_out;
-				exmem_mux_const_in <= idrf_mux_const_out;
-				exmem_mux_lcx_in <= idrf_mux_lcx_out;
-				exmem_mem_en_in <= idrf_mem_we_out;
-				exmem_alu_op_in <= idrf_alu_op_out;
-				exmem_mux_a_in <= idrf_mux_a_out;
-				exmem_mux_b_in <= idrf_mux_b_out;
-			end if;
-			if EXM_e = '1' then
-				wb_mem_data_in <= exmem_mem_out;
-				wb_alu_data_in <= exmem_alu_out;
-				wb_curr_pc_in <= exmem_pc_out;
-				wb_src_sel_in <= exmem_wb_mux_in;
-				wb_reg_addr <= exmem_wb_addr_out;
-				wb_reg_we <= exmem_wb_we_out;
-			end if;
 			
+			if rst = '1' then
+				idrf_pc_in <= (others=>'0'); 
+				idrf_instr_in <= (others=>'0');
+				exmem_pc_in <= (others=>'0');
+				exmem_a_in <= (others=>'0');
+				exmem_b_in <= (others=>'0');
+				exmem_const_in <= (others=>'0');
+				exmem_jump_cond_in <= (others=>'0');
+				exmem_jump_op_in <= (others=>'0');
+				exmem_flags_reg_we_in <= '0';
+				exmem_is_jump_in <= '0';
+				exmem_wb_mux_in <= (others=>'0');
+				exmem_wb_we_in <= '0';
+				exmem_wb_addr_in <= (others=>'0');
+				exmem_mux_c_in <= '0';
+				exmem_mux_const_in <= '0';
+				exmem_mux_lcx_in <= '0';
+				exmem_mem_en_in <= '0';
+				exmem_alu_op_in <= (others=>'0');
+				exmem_mux_a_in <= '0';
+				exmem_mux_b_in <= '0';
+				wb_mem_data_in <= (others=>'0');
+				wb_alu_data_in <= (others=>'0');
+				wb_curr_pc_in <= (others=>'0');
+				wb_src_sel_in <= (others=>'0');
+				wb_reg_addr <= (others=>'0');
+				wb_reg_we <= '0';
+			else
+				if IF_e = '1' then
+					idrf_pc_in <= if_pc_out; 
+					idrf_instr_in <= if_instr_out;
+				end if;
+				if IDRF_e = '1' then
+					exmem_pc_in <= idrf_pc_out;
+					exmem_a_in <= idrf_a_out;
+					exmem_b_in <= idrf_b_out;
+					exmem_const_in <= idrf_const_out;
+					exmem_jump_cond_in <= idrf_jump_cond_out;
+					exmem_jump_op_in <= idrf_jump_op_out;
+					exmem_flags_reg_we_in <= idrf_flags_enable_out;
+					exmem_is_jump_in <= idrf_is_jump_out;
+					exmem_wb_mux_in <= idrf_wb_mux_out;
+					exmem_wb_we_in <= idrf_wb_wc_we_out;
+					exmem_wb_addr_in <= idrf_wb_wc_addr_out;
+					exmem_mux_c_in <= idrf_mux_C_out;
+					exmem_mux_const_in <= idrf_mux_const_out;
+					exmem_mux_lcx_in <= idrf_mux_lcx_out;
+					exmem_mem_en_in <= idrf_mem_we_out;
+					exmem_alu_op_in <= idrf_alu_op_out;
+					exmem_mux_a_in <= idrf_mux_a_out;
+					exmem_mux_b_in <= idrf_mux_b_out;
+				end if;
+				if EXM_e = '1' then
+					wb_mem_data_in <= exmem_mem_out;
+					wb_alu_data_in <= exmem_alu_out;
+					wb_curr_pc_in <= exmem_pc_out;
+					wb_src_sel_in <= exmem_wb_mux_in;
+					wb_reg_addr <= exmem_wb_addr_out;
+					wb_reg_we <= exmem_wb_we_out;
+				end if;
+				
 
+			end if;
 		end if;
 	end process;
 	
