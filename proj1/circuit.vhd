@@ -340,7 +340,7 @@ begin
 	EXM_e <= '1';
 	WB_e <= '1';
 
-	process(clk, rst, IF_e, IDRF_e, EXM_e, WB_e)
+	process(clk, rst, IF_e, IDRF_e, EXM_e, WB_e, crush)
 	begin
 		if rising_edge(clk) then
 			
@@ -373,6 +373,11 @@ begin
 				wb_reg_addr <= (others=>'0');
 				wb_reg_we <= '0';
 			else
+			
+				if crush = '1' then
+					idrf_pc_in <= (others=>'0'); 
+					idrf_instr_in <= (others=>'0');
+				end if;
 				if IF_e = '1' then
 					idrf_pc_in <= if_pc_out; 
 					idrf_instr_in <= if_instr_out;
