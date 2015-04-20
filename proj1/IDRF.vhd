@@ -42,6 +42,10 @@ entity IDRF is
 		exmem_mem_out :in STD_LOGIC_VECTOR(15 downto 0);
 		exmem_PC_out : in STD_LOGIC_VECTOR(15 downto 0);
 		exmem_wb_mux_in : in STD_LOGIC_VECTOR(1 downto 0);
+		flag_s: in STD_LOGIC;
+		flag_v: in STD_LOGIC;
+		flag_c: in STD_LOGIC;
+		flag_z: in STD_LOGIC;
 		
 		PC_out : out  STD_LOGIC_VECTOR (15 downto 0);
 		RA : out  STD_LOGIC_VECTOR (15 downto 0);
@@ -103,6 +107,9 @@ architecture Behavioral of IDRF is
 	signal B_RF : std_logic_vector(15 downto 0);
 	
 	signal forwarded : std_logic_vector(15 downto 0);
+	
+	signal taken : std_logic;
+	signal flagtest : std_logic;
 	
 begin
 	
@@ -180,7 +187,7 @@ begin
 	is_jump <= '1' when inst(15 downto 14) = "00" else '0';
 	
 	
-	-- conflict detectedion
+	-- conflict detectedion data
 
 	-- /!\
 
@@ -212,6 +219,25 @@ begin
 	forwarded <= exmem_mem_out when exmem_wb_mux_in = "01" else
 		exmem_alu_out when exmem_wb_mux_in = "00" else
 		exmem_PC_out;
+		
+		
+		
+		
+	--Conflitos de controlo:
+	
+	with jump_cond select flagtest <= flag_s when "0100",
+		flag_z when "0101",
+		flag_c when "0110",
+		flag_z or flag_s when "0111",
+		'1' when "0000",
+		flag_v when "0011",
+		'0' when others;
+	
+	taken <= jump_op(1) or (jump_op(0) xnor flagtest);
+	
+	
+	
+	
 	
 
 end Behavioral;

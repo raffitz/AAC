@@ -36,6 +36,7 @@ entity ExMem is
 		wb_mux_out : out STD_LOGIC_VECTOR (1 downto 0);
 		wb_we_out : out STD_LOGIC;
 		flag_status : out  STD_LOGIC;
+		flags_out: out STD_LOGIC_VECTOR(3 downto 0);
 		mem_out : out  STD_LOGIC_VECTOR (15 downto 0);
 		ALU_out : out  STD_LOGIC_VECTOR (15 downto 0);
 		PC_out : out STD_LOGIC_VECTOR (15 downto 0)
@@ -134,5 +135,7 @@ begin
 
 	flag_status <= jump;
 
+	flags_out <= ALU_flagsin;
+	
 end Behavioral;
 

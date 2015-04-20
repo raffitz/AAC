@@ -66,7 +66,10 @@ architecture Behavioral of circuit is
 			exmem_mem_out :in STD_LOGIC_VECTOR(15 downto 0);
 			exmem_PC_out : in STD_LOGIC_VECTOR(15 downto 0);
 			exmem_wb_mux_in : in STD_LOGIC_VECTOR(1 downto 0);
-			
+			flag_s: in STD_LOGIC;
+			flag_v: in STD_LOGIC;
+			flag_c: in STD_LOGIC;
+			flag_z: in STD_LOGIC;
 			
 			PC_out : out  STD_LOGIC_VECTOR (15 downto 0);
 			RA : out  STD_LOGIC_VECTOR (15 downto 0);
@@ -114,6 +117,7 @@ architecture Behavioral of circuit is
 			wb_mux_out : OUT std_logic_vector(1 downto 0);
 			wb_we_out : OUT std_logic;
 			flag_status : OUT std_logic;
+			flags_out : out std_logic_vector(3 downto 0);
 			mem_out : OUT std_logic_vector(15 downto 0);
 			ALU_out : OUT std_logic_vector(15 downto 0);
 			PC_out : OUT std_logic_vector(15 downto 0)
@@ -256,6 +260,11 @@ begin
 		exmem_mem_out => exmem_mem_out,
 		exmem_PC_out => exmem_PC_out,
 		exmem_wb_mux_in => exmem_wb_mux_out,
+		
+		flag_s => flags_out(3),
+		flag_v => flags_out(0),
+		flag_c => flags_out(2),
+		flag_z => flags_out(1),
 		
 		PC_out => idrf_pc_out,
 		RA => idrf_a_out,
