@@ -55,6 +55,7 @@ architecture Behavioral of circuit is
 		PORT(
 			rst : IN std_logic;
 			clk : IN std_logic;
+			PCnext_in : in  STD_LOGIC_VECTOR (15 downto 0);
 			PC_in : IN std_logic_vector(15 downto 0);
 			inst : IN std_logic_vector(15 downto 0);
 			wb_data : IN std_logic_vector(15 downto 0);
@@ -88,7 +89,9 @@ architecture Behavioral of circuit is
 			mux_C : OUT std_logic;
 			mux_const : OUT std_logic;
 			mux_a : OUT std_logic;
-			mux_b : OUT std_logic
+			mux_b : OUT std_logic;
+			crush : out std_logic;
+			override_addr : out std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
 
@@ -249,6 +252,7 @@ begin
 		rst => rst,
 		clk => clk,
 		PC_in => idrf_pc_in,
+		PCnext_in =>    ,
 		inst => idrf_instr_in,
 		wb_data => idrf_wb_data_in,
 		wb_addr => idrf_wb_addr_in,
@@ -283,7 +287,10 @@ begin
 		mux_C => idrf_mux_C_out,
 		mux_const => idrf_mux_const_out,
 		mux_a => idrf_mux_a_out,
-		mux_b => idrf_mux_b_out
+		mux_b => idrf_mux_b_out,
+		crush => ,
+		override_addr => 
+
 	);
 
 	Inst_ExMem: ExMem PORT MAP(

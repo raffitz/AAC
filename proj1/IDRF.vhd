@@ -32,6 +32,7 @@ entity IDRF is
 		rst : in STD_LOGIC;
 		clk : in STD_LOGIC;
 		PC_in : in  STD_LOGIC_VECTOR (15 downto 0);
+		PCnext_in : in  STD_LOGIC_VECTOR (15 downto 0);
 		inst : in  STD_LOGIC_VECTOR (15 downto 0);
 		wb_data : in  STD_LOGIC_VECTOR (15 downto 0);
 		wb_addr : in  STD_LOGIC_VECTOR (2 downto 0);
@@ -46,6 +47,7 @@ entity IDRF is
 		flag_v: in STD_LOGIC;
 		flag_c: in STD_LOGIC;
 		flag_z: in STD_LOGIC;
+		
 		
 		PC_out : out  STD_LOGIC_VECTOR (15 downto 0);
 		RA : out  STD_LOGIC_VECTOR (15 downto 0);
@@ -65,7 +67,9 @@ entity IDRF is
 		mux_const : OUT std_logic;
 		mux_a : OUT std_logic;
 		mux_b : OUT std_logic;
-		halt : OUT std_logic
+		halt : OUT std_logic;
+		crush : out std_logic;
+		override_addr : out std_logic_vector(15 downto 0)
 	);
 end IDRF;
 
@@ -111,6 +115,9 @@ architecture Behavioral of IDRF is
 	signal taken : std_logic;
 	signal flagtest : std_logic;
 	
+	signal actualNextPC : std_logic_vector(15 downto 0);
+	signal jump_addr : std_logic_vector(15 downto 0);
+	
 begin
 	
 	PC_out <= PC_in;
@@ -141,7 +148,7 @@ begin
 		inst(5 downto 3);
 
 	ALU_op <= "10011" when inst(15 downto 12) = "0011" else -- absolute jumps
-		"00000" when inst(15 downto 14) = "00" else -- relative jumps
+		--"00000" when inst(15 downto 14) = "00" else -- relative jumps
 		"00000" when inst(15 downto 14) = "11" else -- lcl e lch
 		inst(10 downto 6);
 
@@ -163,7 +170,7 @@ begin
 	wb_wc_addr <= "111" when inst(15 downto 11) = "00110" else
 		inst(13 downto 11);	-- WC addr
 	-- WC we
-	wb_wc_we <= '1' when inst(15 downto 11) = "00110" else
+	wb_wc_we <= '1' when inst(15 downto 11) = "00110" else -- jal
 		'0' when inst(15 downto 14) = "00" else	-- control transfer
 		'0' when inst(15 downto 14) = "10" and inst(10 downto 6)="01011" else	-- store in Mem
 		'1';
@@ -235,9 +242,16 @@ begin
 	
 	taken <= jump_op(1) or (jump_op(0) xnor flagtest);
 	
+	jump_addr <= B_RF when jump_op = "11" else
+		PC_in + const;
 	
 	
 	
+	actualNextPC <= PC_in when taken = '0' else
+		jump_addr;
+	
+	crush <= '0' when PCnext_in = actualNextPC else '1';
+	override_addr <= actualNextPC;
 	
 
 end Behavioral;
