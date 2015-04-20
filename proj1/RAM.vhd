@@ -36,9 +36,9 @@ architecture behavioural of RAM is
 		return ram;
 	end function; 
 
-	signal ram : ramType := InitramFromFile("imem.txt");
+--	signal ram : ramType := InitramFromFile("imem.txt");
 
-
+	signal ram : ramType := (others => (others => '0'));
 
 begin
 	process (clk)

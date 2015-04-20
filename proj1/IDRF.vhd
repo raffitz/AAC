@@ -38,6 +38,11 @@ entity IDRF is
 		wb_we : in  STD_LOGIC;
 		exmem_wb_addr : in STD_LOGIC_VECTOR(2 downto 0);
 		exmem_wb_we : in STD_LOGIC;
+		exmem_alu_out : in STD_LOGIC_VECTOR(15 downto 0);
+		exmem_mem_out :in STD_LOGIC_VECTOR(15 downto 0);
+		exmem_PC_out : in STD_LOGIC_VECTOR(15 downto 0);
+		exmem_wb_mux_in : in STD_LOGIC_VECTOR(1 downto 0);
+		
 		PC_out : out  STD_LOGIC_VECTOR (15 downto 0);
 		RA : out  STD_LOGIC_VECTOR (15 downto 0);
 		RB : out  STD_LOGIC_VECTOR (15 downto 0);
@@ -56,7 +61,7 @@ entity IDRF is
 		mux_const : OUT std_logic;
 		mux_a : OUT std_logic;
 		mux_b : OUT std_logic;
-		halt : OUT std_logic;
+		halt : OUT std_logic
 	);
 end IDRF;
 
@@ -87,20 +92,29 @@ architecture Behavioral of IDRF is
 	END COMPONENT;
 
 	signal a_addr : std_logic_vector(2 downto 0);
+	signal b_addr : std_logic_vector(2 downto 0);
 	
 	signal depends_a : std_logic;
 	signal depends_b : std_logic;
 	
-	signal op : inst(10 downto 0);
+	signal op : std_logic_vector(4 downto 0);
+	
+	signal A_RF : std_logic_vector(15 downto 0);
+	signal B_RF : std_logic_vector(15 downto 0);
+	
+	signal forwarded : std_logic_vector(15 downto 0);
+	
 begin
 	
 	PC_out <= PC_in;
 	
+	b_addr <= inst(2 downto 0);
+	
 	Inst_RF: RF PORT MAP(
 		Aaddr => a_addr,
-		Baddr => inst(2 downto 0),
-		A => RA,
-		B => RB,
+		Baddr => b_addr,
+		A => A_RF,
+		B => B_RF,
 		Daddr => wb_addr,
 		DATA => wb_data,
 		WE => wb_we,
@@ -170,7 +184,7 @@ begin
 
 	-- /!\
 
-	op <= "10000" when inst(15 downto 14) =/ "10" else inst(10 downto 6);
+	op <= "10000" when inst(15 downto 14) /= "10" else inst(10 downto 6);
 	with op select depends_a <= '0' when "10000",
 		'0' when "10011",
 		'0' when "11100",
@@ -188,6 +202,17 @@ begin
 		'1' when others;
 
 	halt <= '1' when exmem_wb_we = '1' and (exmem_wb_addr = a_addr or exmem_wb_addr = inst(2 downto 0)) else '0';
+	
+	
+	RA <= forwarded when (a_addr = exmem_wb_addr and exmem_wb_we = '1') else A_RF;
+	RB <= forwarded when (b_addr = exmem_wb_addr and exmem_wb_we = '1') else B_RF;
+	
+	
+	
+	forwarded <= exmem_mem_out when exmem_wb_mux_in = "01" else
+		exmem_alu_out when exmem_wb_mux_in = "00" else
+		exmem_PC_out;
+	
 
 end Behavioral;
 

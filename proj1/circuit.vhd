@@ -59,7 +59,15 @@ architecture Behavioral of circuit is
 			inst : IN std_logic_vector(15 downto 0);
 			wb_data : IN std_logic_vector(15 downto 0);
 			wb_addr : IN std_logic_vector(2 downto 0);
-			wb_we : IN std_logic;          
+			wb_we : IN std_logic;
+			exmem_wb_addr : in STD_LOGIC_VECTOR(2 downto 0);
+			exmem_wb_we : in STD_LOGIC;
+			exmem_alu_out : in STD_LOGIC_VECTOR(15 downto 0);
+			exmem_mem_out :in STD_LOGIC_VECTOR(15 downto 0);
+			exmem_PC_out : in STD_LOGIC_VECTOR(15 downto 0);
+			exmem_wb_mux_in : in STD_LOGIC_VECTOR(1 downto 0);
+			
+			
 			PC_out : out  STD_LOGIC_VECTOR (15 downto 0);
 			RA : out  STD_LOGIC_VECTOR (15 downto 0);
 			RB : out  STD_LOGIC_VECTOR (15 downto 0);
@@ -241,6 +249,14 @@ begin
 		wb_data => idrf_wb_data_in,
 		wb_addr => idrf_wb_addr_in,
 		wb_we => idrf_wb_we_in,
+		
+		exmem_wb_addr => exmem_wb_addr_out,
+		exmem_wb_we => exmem_wb_we_out,
+		exmem_alu_out => exmem_alu_out,
+		exmem_mem_out => exmem_mem_out,
+		exmem_PC_out => exmem_PC_out,
+		exmem_wb_mux_in => exmem_wb_mux_out,
+		
 		PC_out => idrf_pc_out,
 		RA => idrf_a_out,
 		RB => idrf_b_out,
