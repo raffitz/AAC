@@ -229,6 +229,8 @@ architecture Behavioral of circuit is
 	
 	-- Other non-reg signals:
 	
+	signal flags_out : std_logic_vector(3 downto 0);
+	
 	signal pc_en : std_logic;
 	
 	signal IF_e : std_logic;
@@ -252,7 +254,7 @@ begin
 		rst => rst,
 		clk => clk,
 		PC_in => idrf_pc_in,
-		PCnext_in =>    ,
+		PCnext_in => idrf_pc_in,
 		inst => idrf_instr_in,
 		wb_data => idrf_wb_data_in,
 		wb_addr => idrf_wb_addr_in,
@@ -288,8 +290,8 @@ begin
 		mux_const => idrf_mux_const_out,
 		mux_a => idrf_mux_a_out,
 		mux_b => idrf_mux_b_out,
-		crush => ,
-		override_addr => 
+		crush => open,
+		override_addr => open
 
 	);
 
@@ -317,6 +319,7 @@ begin
 		wb_mux_out => exmem_wb_mux_out,
 		wb_we_out => exmem_wb_we_out,
 		flag_status => exmem_flag_status_out,
+		flags_out => flags_out,
 		mem_out => exmem_mem_out,
 		ALU_out => exmem_alu_out,
 		PC_out => exmem_pc_out 
@@ -340,7 +343,7 @@ begin
 	EXM_e <= '1';
 	WB_e <= '1';
 
-	process(clk, rst, IF_e, IDRF_e, EXM_e, WB_e, crush)
+	process(clk, rst, IF_e, IDRF_e, EXM_e, WB_e)
 	begin
 		if rising_edge(clk) then
 			
@@ -374,10 +377,10 @@ begin
 				wb_reg_we <= '0';
 			else
 			
-				if crush = '1' then
-					idrf_pc_in <= (others=>'0'); 
-					idrf_instr_in <= (others=>'0');
-				end if;
+				--if crush = '1' then
+				--	idrf_pc_in <= (others=>'0'); 
+				--	idrf_instr_in <= (others=>'0');
+				--end if;
 				if IF_e = '1' then
 					idrf_pc_in <= if_pc_out; 
 					idrf_instr_in <= if_instr_out;

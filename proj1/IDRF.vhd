@@ -118,6 +118,8 @@ architecture Behavioral of IDRF is
 	signal actualNextPC : std_logic_vector(15 downto 0);
 	signal jump_addr : std_logic_vector(15 downto 0);
 	
+	signal const_s : std_logic_vector(15 downto 0);
+	
 begin
 	
 	PC_out <= PC_in;
@@ -141,7 +143,7 @@ begin
 		const11 => inst(10 downto 0),
 		const12 => inst(11 downto 0),
 		inselect => inst(15 downto 13),
-		extended => const
+		extended => const_s
 	);
 	
 	a_addr <= inst(13 downto 11) when inst(15 downto 14)="11" else -- Quando é lcl ou lch
@@ -232,7 +234,7 @@ begin
 		
 	--Conflitos de controlo:
 	
-	with jump_cond select flagtest <= flag_s when "0100",
+	with inst(11 downto 8) select flagtest <= flag_s when "0100",
 		flag_z when "0101",
 		flag_c when "0110",
 		flag_z or flag_s when "0111",
@@ -240,17 +242,17 @@ begin
 		flag_v when "0011",
 		'0' when others;
 	
-	taken <= jump_op(1) or (jump_op(0) xnor flagtest);
+	taken <= inst(13) or (inst(12) xnor flagtest);
 	
-	jump_addr <= B_RF when jump_op = "11" else
-		PC_in + const;
+	jump_addr <= B_RF when inst(13 downto 12) = "11" else
+		PC_in + const_s;
 	
-	
+	const <= const_s;
 	
 	actualNextPC <= PC_in when taken = '0' else
 		jump_addr;
 	
-	crush <= '0' when PCnext_in = actualNextPC else '1';
+	crush <= '0' when inst(15 downto 14) /= "00" or PCnext_in = actualNextPC else '1';
 	override_addr <= actualNextPC;
 	
 
