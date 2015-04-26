@@ -237,14 +237,17 @@ architecture Behavioral of circuit is
 	signal IDRF_e : std_logic;
 	signal EXM_e : std_logic;
 	signal WB_e : std_logic;
+	
+	signal crush : std_logic;
+	signal override_addr : std_logic_vector(15 downto 0);
 
 begin
 
 	Inst_IFetch: IFetch PORT MAP(
 		clk => clk,
 		rst => rst,
-		jaddr => exmem_alu_out,
-		jsel => exmem_flag_status_out,
+		jaddr => override_addr,
+		jsel => crush,
 		pc_en => pc_en,
 		addr => if_pc_out,
 		irout => if_instr_out 
@@ -290,8 +293,8 @@ begin
 		mux_const => idrf_mux_const_out,
 		mux_a => idrf_mux_a_out,
 		mux_b => idrf_mux_b_out,
-		crush => open,
-		override_addr => open
+		crush => crush,
+		override_addr => override_addr
 
 	);
 
