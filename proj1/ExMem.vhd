@@ -135,7 +135,7 @@ begin
 
 	flag_status <= jump;
 
-	flags_out <= ALU_flagsin;
+	flags_out <= ALU_flagsout;
 	
 end Behavioral;
 
