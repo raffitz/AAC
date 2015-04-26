@@ -38,6 +38,7 @@ entity IFetch is
 		jaddr : in STD_LOGIC_VECTOR(15 downto 0);
 		jsel : in STD_LOGIC;
 		pc_en : in STD_LOGIC;
+		actpc : out STD_LOGIC_VECTOR(15 downto 0);
 		addr : out STD_LOGIC_VECTOR(15 downto 0);
 		irout : out STD_LOGIC_VECTOR(15 downto 0)
 	);
@@ -65,14 +66,39 @@ architecture Behavioral of IFetch is
 	);
 	END COMPONENT;
 
+	COMPONENT btb
+	Port(
+		address : in  STD_LOGIC_VECTOR (15 downto 0);
+		crush : in  STD_LOGIC;
+		override_addr : in  STD_LOGIC_VECTOR (15 downto 0);
+		clk : in  STD_LOGIC;
+		rst : in  STD_LOGIC;
+		hit : out  STD_LOGIC;
+		oaddress : out  STD_LOGIC_VECTOR (15 downto 0)
+	);
+	END COMPONENT;
 
 	signal en : STD_LOGIC;
 	signal pcout : STD_LOGIC_VECTOR(15 downto 0);
 	signal pc_inc : STD_LOGIC_VECTOR(15 downto 0);
 	signal pcin : STD_LOGIC_VECTOR(15 downto 0);
+	
+	signal hit : std_logic;
+	signal oaddress : std_logic_vector(15 downto 0);
 begin
-
-	Inst_IMem: IMem PORT MAP(
+	Inst_BTB: btb
+	PORT MAP(
+		address => pcout,
+		crush => jsel,
+		override_addr => jaddr,
+		clk => clk,
+		rst => rst,
+		hit => hit,
+		oaddress => oaddress
+	);
+	
+	Inst_IMem: IMem
+	PORT MAP(
 		ADDR => pcout,
 		DATA => irout
 	);
@@ -90,7 +116,12 @@ begin
 		Q => pcout
 	);
 	pc_inc <= pcout + 1;
-	pcin <= pc_inc when jsel = '0' else jaddr;
+	
+	actpc <= pcin;
+	
+	pcin <= jaddr when jsel = '1' else
+		oaddress when hit = '1' else
+		pc_inc;
 	addr <= pc_inc;
 
 end Behavioral;

@@ -45,7 +45,8 @@ architecture Behavioral of circuit is
 			rst : IN std_logic;
 			jaddr : IN std_logic_vector(15 downto 0);
 			jsel : IN std_logic;
-			pc_en : IN std_logic;        
+			pc_en : IN std_logic;
+			actpc : OUT std_logic_vector(15 downto 0);
 			addr : OUT std_logic_vector(15 downto 0);
 			irout : OUT std_logic_vector(15 downto 0)
 		);
@@ -144,9 +145,11 @@ architecture Behavioral of circuit is
 	-- registers in and out
 
 	signal if_pc_out : std_logic_vector(15 downto 0);
+	signal if_actpc_out : std_logic_vector(15 downto 0);
 	signal if_instr_out : std_logic_vector(15 downto 0);
 
 	signal idrf_pc_in : std_logic_vector(15 downto 0);
+	signal idrf_actpc_in : std_logic_vector(15 downto 0);
 	signal idrf_instr_in : std_logic_vector(15 downto 0);
 
 	signal idrf_a_out : std_logic_vector(15 downto 0);
@@ -249,6 +252,7 @@ begin
 		jaddr => override_addr,
 		jsel => crush,
 		pc_en => pc_en,
+		actpc => if_actpc_out,
 		addr => if_pc_out,
 		irout => if_instr_out 
 	);
@@ -257,7 +261,7 @@ begin
 		rst => rst,
 		clk => clk,
 		PC_in => idrf_pc_in,
-		PCnext_in => idrf_pc_in,
+		PCnext_in => idrf_actpc_in,
 		inst => idrf_instr_in,
 		wb_data => idrf_wb_data_in,
 		wb_addr => idrf_wb_addr_in,
@@ -353,6 +357,7 @@ begin
 			
 			if rst = '1' then
 				idrf_pc_in <= (others=>'0'); 
+				idrf_actpc_in <= (others=>'0');
 				idrf_instr_in <= (others=>'0');
 				exmem_pc_in <= (others=>'0');
 				exmem_a_in <= (others=>'0');
@@ -388,6 +393,7 @@ begin
 					end if;
 				end if;
 				if IF_e = '1' then
+					idrf_actpc_in <= if_actpc_out;
 					idrf_pc_in <= if_pc_out;
 				end if;
 				if IDRF_e = '1' then

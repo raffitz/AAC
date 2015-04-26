@@ -120,6 +120,8 @@ architecture Behavioral of IDRF is
 	
 	signal const_s : std_logic_vector(15 downto 0);
 	
+	signal crush_s : std_logic;
+	signal crush_r : std_logic;
 begin
 	
 	PC_out <= PC_in;
@@ -252,9 +254,20 @@ begin
 	actualNextPC <= PC_in when taken = '0' else
 		jump_addr;
 	
-	crush <= '0' when inst(15 downto 14) /= "00" or PCnext_in = actualNextPC else '1';
+	crush_s <= '0' when crush_r = '1' or inst(15 downto 14) /= "00" or PCnext_in = actualNextPC else '1';
+	crush <= crush_s;
+	
 	override_addr <= actualNextPC;
 	
+	process (clk,rst)
+	begin
+		if (rst='1') then
+			crush_r <= '0';
+		end if;
+		if (clk'event and clk = '1') then
+			crush_r <= crush_s;
+		end if;
+	end process;
 
 end Behavioral;
 
