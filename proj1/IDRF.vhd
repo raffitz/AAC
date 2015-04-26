@@ -198,26 +198,24 @@ begin
 	is_jump <= '1' when inst(15 downto 14) = "00" else '0';
 	
 	
-	-- conflict detectedion data
+	-- data hazards
 
-	-- /!\
-
-	op <= "10000" when inst(15 downto 14) /= "10" else inst(10 downto 6);
-	with op select depends_a <= '0' when "10000",
-		'0' when "10011",
-		'0' when "11100",
-		'0' when "11111",
-		'1' when others;
-		
-	with op select depends_b <= '0' when "00011",
-		'0' when "00110",
-		'0' when "01000",
-		'0' when "01001",
-		'0' when "10000",
-		'0' when "10101",
-		'0' when "11010",
-		'0' when "11111",
-		'1' when others;
+	--op <= "10000" when inst(15 downto 14) /= "10" else inst(10 downto 6);
+	--with op select depends_a <= '0' when "10000",
+	--	'0' when "10011",
+	--	'0' when "11100",
+	--	'0' when "11111",
+	--	'1' when others;
+	--	
+	--with op select depends_b <= '0' when "00011",
+	--	'0' when "00110",
+	--	'0' when "01000",
+	--	'0' when "01001",
+	--	'0' when "10000",
+	--	'0' when "10101",
+	--	'0' when "11010",
+	--	'0' when "11111",
+	--	'1' when others;
 
 	halt <= '1' when exmem_wb_we = '1' and (exmem_wb_addr = a_addr or exmem_wb_addr = inst(2 downto 0)) else '0';
 	
@@ -232,9 +230,7 @@ begin
 		exmem_PC_out;
 		
 		
-		
-		
-	--Conflitos de controlo:
+	-- control hazards
 	
 	with inst(11 downto 8) select flagtest <= flag_s when "0100",
 		flag_z when "0101",
@@ -263,8 +259,7 @@ begin
 	begin
 		if (rst='1') then
 			crush_r <= '0';
-		end if;
-		if (clk'event and clk = '1') then
+		elsif (clk'event and clk = '1') then
 			crush_r <= crush_s;
 		end if;
 	end process;

@@ -239,7 +239,6 @@ architecture Behavioral of circuit is
 	signal IF_e : std_logic;
 	signal IDRF_e : std_logic;
 	signal EXM_e : std_logic;
-	signal WB_e : std_logic;
 	
 	signal crush : std_logic;
 	signal override_addr : std_logic_vector(15 downto 0);
@@ -348,9 +347,8 @@ begin
 	IF_e <= '1';
 	IDRF_e <= '1';
 	EXM_e <= '1';
-	WB_e <= '1';
 
-	process(clk, rst, IF_e, IDRF_e, EXM_e, WB_e)
+	process(clk, rst, IF_e, IDRF_e, EXM_e)
 	begin
 		if rising_edge(clk) then
 			
