@@ -380,13 +380,15 @@ begin
 				wb_reg_we <= '0';
 			else
 			
-				--if crush = '1' then
-				--	idrf_pc_in <= (others=>'0'); 
-				--	idrf_instr_in <= (others=>'0');
-				--end if;
+				if crush = '1' then
+					idrf_instr_in <= (others=>'0');
+				else
+					if IF_e = '1' then
+						idrf_instr_in <= if_instr_out;
+					end if;
+				end if;
 				if IF_e = '1' then
-					idrf_pc_in <= if_pc_out; 
-					idrf_instr_in <= if_instr_out;
+					idrf_pc_in <= if_pc_out;
 				end if;
 				if IDRF_e = '1' then
 					exmem_pc_in <= idrf_pc_out;
