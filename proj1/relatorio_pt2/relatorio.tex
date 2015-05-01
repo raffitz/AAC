@@ -40,7 +40,7 @@
 	
 	\section{Introdução}
 	
-	Nesta parte do trabalho pretende-se que o processador descrito na primeira parte passe a ter funcionamento em \textit{pipeline}. Como visto nas aulas teóricas isto permitirá aumentar o número de instruções que são executas por ciclo de relógio -- IPC.
+	Nesta parte do trabalho pretende-se que o processador descrito na primeira parte passe a ter funcionamento em \textit{pipeline}. Como visto nas aulas teóricas isto permitirá aumentar o número de instruções que são executas por ciclo de relógio---IPC.
 	
 	No entanto, introduzir \textit{pipelining} acarreta problemas que não existiam na versão anterior. É agora preciso ter em conta a existência de conflitos de dados e conflitos de controlo. Para mitigar o impacto destes problemas são implementados circuitos de detecção para conflitos, \textit{forwarding} e previsão dinâmica de saltos.
 	
@@ -58,7 +58,18 @@
 			\label{fig:circuit_pt1}
 		\end{figure}
 	
-	\section{Escrita Transparente do \textit{Register File}}
+	\section{Conflitos de Dados}
+	
+	\subsection{Detecção}
+	
+	Não é implementada execução fora de ordem pelo que não existem anti-dependências. Ou seja, esta arquitectura tem apenas o tipo de conflitos de \textit{read after write}---RAW.
+	
+	Para detectar os conflitos de dados basta, neste caso, verificar se nos andares a seguir ao ID/RF está uma instrução que vá escrever num dos registos lidos pela instrução que está actualmente no ID/RF. Ou seja, existe um conflito de dados se o \textit{enable} do RF estiver activo no andar EX/MEM ou no WB e o endereço do registo que vai ser escrito corresponde a um dos que está a ser lido em ID/RF. Se isto se verificar é feito um \textit{stall} do processador---os andares do ID/RF e IF ficam parados e a instrução em EX/MEM avança para WB.
+	
+	Na verdade os sinais em WB não são verificados porque a escrita para o RF foi tornada transparente, como descrito em \ref{subsec:RF_write}.
+	
+	\subsection{Escrita Transparente do \textit{Register File}}
+	\label{subsec:RF_write}
 	
 	Uma forma muito simples de começar a mitigar os conflitos de dados é alterar o flanco em que o \textit{Register Rile} é escrito.
 	
@@ -66,9 +77,15 @@
 	
 	Para resolver este problema o RF passa a ser escrito no flanco de relógio descendente. Assim, quando R$x$ é lido (no flanco ascendente) o valor de R$x$ já foi actualizado no flanco descendente, pelo que não é necessário atrasar a execução da instrução que está a ler o operando R$x$.
 	
-	\section{Detecção de Conflitos de Dados}
+	\subsection{\textit{Forwarding}}
 	
-	\section{\textit{Forwarding}}
+	Para evitar que o processamento seja atrasado quando é detectado um conflito de dados, implementou-se \textit{forwarding} da saída do andar EX/MEM (antes dos registos) para a saída do andar ID/RF (antes dos registos).
+	
+	Quando é verificada a existência de um conflito é feita uma substituição do valor lido do RF pelo valor correcto, reencaminhado da saída do EX/MEM. O valor reencaminhado tanto pode ser um resultado da ALU como um valor lido da memória, dependendo do tipo de operação que o EX/MEM está a executar.
+	
+	Com este \textit{forwarding}, em conjunto com a escrita transparente descrita em \ref{subsec:RF_write}, os conflitos de dados ficam totalmente resolvidos. É de notar que com este método de mitigação deixam de existir \textit{stalls} devidos a conflitos de dados.
+	
+	\section{Conflitos de Controlo}
 	
 	\section{Testes e Simulações}
 		

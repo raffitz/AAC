@@ -217,7 +217,7 @@ begin
 	--	'0' when "11111",
 	--	'1' when others;
 
-	halt <= '1' when exmem_wb_we = '1' and (exmem_wb_addr = a_addr or exmem_wb_addr = inst(2 downto 0)) else '0';
+	halt <= '1' when exmem_wb_we = '1' and (exmem_wb_addr = a_addr or exmem_wb_addr = b_addr else '0';
 	
 	
 	RA <= forwarded when (a_addr = exmem_wb_addr and exmem_wb_we = '1') else A_RF;
