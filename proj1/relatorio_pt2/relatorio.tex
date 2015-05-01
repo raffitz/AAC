@@ -42,7 +42,7 @@
 	
 	Nesta parte do trabalho pretende-se que o processador descrito na primeira parte passe a ter funcionamento em \textit{pipeline}. Como visto nas aulas teóricas isto permitirá aumentar o número de instruções que são executas por ciclo de relógio---IPC.
 	
-	No entanto, introduzir \textit{pipelining} acarreta problemas que não existiam na versão anterior. É agora preciso ter em conta a existência de conflitos de dados e conflitos de controlo. Para mitigar o impacto destes problemas são implementados circuitos de detecção para conflitos, \textit{forwarding} e previsão dinâmica de saltos.
+	No entanto, introduzir \textit{pipelining} acarreta problemas que não existiam na versão anterior. É agora preciso ter em conta a existência de conflitos de dados e conflitos de controlo. Para mitigar o impacto destes problemas são implementados circuitos de detecção de conflitos, \textit{forwarding} e previsão dinâmica de saltos.
 	
 	
 	\section{Introdução de Registos de \textit{Pipelining}}
@@ -86,6 +86,41 @@
 	Com este \textit{forwarding}, em conjunto com a escrita transparente descrita em \ref{subsec:RF_write}, os conflitos de dados ficam totalmente resolvidos. É de notar que com este método de mitigação deixam de existir \textit{stalls} devidos a conflitos de dados.
 	
 	\section{Conflitos de Controlo}
+	
+	\subsection{Detecção}
+	
+	Os conflitos de controlo resultam das instruções de salto. Quando uma instrução de salto chega ao ID/RF o PC pode já conter um endereço incorrecto. É portanto necessário verificar se o endereço contido no PC permite continuar uma execução correcta do programa. Caso se verifique que o PC contém um valor indesejado, a instrução correspondente a esse endereço é esmagada (\textit{crush}) antes que consiga entrar no ID/RF. Isto é conseguido à custa de fazer um \textit{reset} aos registos entre IF e ID/RF.
+	
+	Os casos em que é necessário esmagar a instrução são:
+	
+	\begin{itemize}
+		\item o salto é incondicional (inclui  \texttt{JAL} e \texttt{JR}) e o PC não contém o endereço de salto;
+		\item o salto é \textit{taken} e o PC não contém o endereço de salto;
+		\item o salto é \textit{not taken} e o PC não contém PC + 1.
+	\end{itemize}
+
+	Nos casos em que é feito \textit{crush} o PC é actualizado com o endereço correcto, e continua-se a execução do programa.
+	
+
+	\subsection{Somador em ID/RF}
+	
+	Na primeira parte do trabalho, os endereços de salto eram calculados no andar EX/MEM. Caso isso continuasse a ser feito na nova arquitectura com \textit{pipeline}, seria necessário deixar a instrução de salto avançar até EX/MEM e só depois poderia ser verificado se o PC estava a executar a instrução correcta ou se era necessário fazer \textit{crush}.
+	
+	De forma a antecipar a detecção dos conflitos de controlo adicionou-se um somador ao andar ID/RF. Este somador permite que o endereço de salto seja calculado neste andar, em vez de ser no andar EX/MEM.
+	
+	\subsection{Previsão Dinâmica de Saltos}
+	
+	A utilização de previsão dinâmica de saltos permite reduzir a taxa de \textit{crushes} por instrução de salto. A forma de previsão implementada consiste na utilização de um BTB---\textit{branch target buffer}. Pode-se pensar neste componente como um histórico dos efeitos que várias instruções de salto produziram anteriormente: quando de uma instrução de salto resulta um esmagamento, é actualizada a entrada do BTB correspondente à instrução de salto que foi mal prevista. Espera-se assim que das próximas vezes que a instrução for executada exista uma previsão correcta de se o salto deve ser \textit{taken} ou não. Cada previsão correcta é menos um \textit{crush} que é necessário, menos um ciclo de execução perdido.
+	
+	Os pormenores da BTB implementada são os seguintes:
+	
+	\begin{itemize}
+		\item 8 bits para guardar a \textit{tag} (parte alta do endereço do PC);
+		\item 1 bit de validade;
+		\item 16 bits para guardar o endereço que se prevê ser o destino do salto.
+	\end{itemize}
+	
+	A BTB tem portanto 256 entradas de 25 bits, o que totaliza 800 bytes.
 	
 	\section{Testes e Simulações}
 		
