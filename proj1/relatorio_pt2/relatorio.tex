@@ -75,7 +75,7 @@
 	
 	Na primeira parte do trabalho o RF era escrito sempre no flanco de relógio ascendente. Com a introdução do funcionamento em \textit{pipeline}, isto obriga a fazer um \textit{stall} sempre que num mesmo ciclo o WB for escrever num registo R$x$ e em ID/RF estiver a ser feito \textit{fetch} do valor de R$x$.
 	
-	Para resolver este problema o RF passa a ser escrito no flanco de relógio descendente. Assim, quando R$x$ é lido (no flanco ascendente) o valor de R$x$ já foi actualizado no flanco descendente, pelo que não é necessário atrasar a execução da instrução que está a ler o operando R$x$.
+	Para resolver este problema o RF passa a ser escrito no flanco de relógio descendente. Assim, quando R$x$ é lido (no flanco ascendente) o valor de R$x$ já foi actualizado no flanco descendente, pelo que não é necessário atrasar a execução da instrução que está a ler o operando R$x$. É de notar que isto é apenas possível devido ao curto caminho de propagação no andar de WB.
 	
 	\subsection{\textit{Forwarding}}
 	
@@ -83,7 +83,16 @@
 	
 	Quando é verificada a existência de um conflito é feita uma substituição do valor lido do RF pelo valor correcto, reencaminhado da saída do EX/MEM. O valor reencaminhado tanto pode ser um resultado da ALU como um valor lido da memória, dependendo do tipo de operação que o EX/MEM está a executar.
 	
-	Com este \textit{forwarding}, em conjunto com a escrita transparente descrita em \ref{subsec:RF_write}, os conflitos de dados ficam totalmente resolvidos. É de notar que com este método de mitigação deixam de existir \textit{stalls} devidos a conflitos de dados.
+	Com este \textit{forwarding}, em conjunto com a escrita transparente descrita em \ref{subsec:RF_write}, os conflitos de dados ficam totalmente resolvidos. É de notar que com este método de mitigação pode-se aumentar ligeiramente o caminho crítico mas, no geral é melhor pois deixam de existir \textit{stalls} devidos a conflitos de dados.
+	
+	A \autoref{fig:circuit_data_forwarding} representa as mudanças efectuadas no circuito para a implementação do \textit{forwarding} de dados. É de notar que apenas estão representados os componentes relevantes para o circuito de \textit{forwarding}.
+	
+	\begin{figure}[h]
+			\centering
+			\includegraphics[width=1.\textwidth]{img/circuit_data_forwarding}
+			\caption{Circuito de \textit{forwarding} de dados entre os andares de EX/MEM e ID/RF.}
+			\label{fig:circuit_data_forwarding}
+		\end{figure}
 	
 	\section{Conflitos de Controlo}
 	
