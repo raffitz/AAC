@@ -85,7 +85,7 @@
 	
 	Com este \textit{forwarding}, em conjunto com a escrita transparente descrita em \ref{subsec:RF_write}, os conflitos de dados ficam totalmente resolvidos. É de notar que com este método de mitigação pode-se aumentar ligeiramente o caminho crítico mas, no geral é melhor pois deixam de existir \textit{stalls} devidos a conflitos de dados.
 	
-	A \autoref{fig:circuit_data_forwarding} representa as mudanças efectuadas no circuito para a implementação do \textit{forwarding} de dados. É de notar que apenas estão representados os componentes relevantes para o circuito de \textit{forwarding}.
+	A \autoref{fig:circuit_data_forwarding} representa as mudanças efectuadas no circuito para a implementação do \textit{forwarding} de dados. É de notar que apenas estão representados os componentes relevantes para o circuito de \textit{forwarding} de dados.
 	
 	\begin{figure}[h]
 			\centering
@@ -134,6 +134,14 @@
 	\section{Testes e Simulações}
 		
 	\section{Conclusão}
+	
+	Com esta actividade experimental o grupo conseguiu transformar o processador multi-ciclo da primeira parte laboratorial num processador com funcionamento em \textit{pipeline}. Deste modo é possível então obter uma maior rapidez na execução de programas, aumentando para isso o número de instruções que são executadas por ciclo de relógio.
+	
+	Para resolver os vários conflitos de dados e de controlo que surgem num processador em \textit{pipeline}, resolvemos adoptar várias tácticas, entre elas \textit{forwarding} de dados e utilização de uma \textit{Branch Target Buffer} para predição dinâmica de saltos.
+	
+	 Todos os testes e simulações realizados permitiram concluir que o processador desenvolvido foi concluído com sucesso.
+	 
+	  Em suma, este trabalho laboratorial permitiu ao grupo consolidar os conceitos aprendidos durante as aulas teóricas sobre o funcionamento em \textit{pipeline}, resolução de conflitos de dados e de conflitos de controlo, bem como predição dinâmica de saltos e circuitos de \textit{forwarding}.
 
 \end{document}
 
