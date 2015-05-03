@@ -20,6 +20,10 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
+-- used for performance counters
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -243,6 +247,11 @@ architecture Behavioral of circuit is
 	signal crush : std_logic;
 	signal override_addr : std_logic_vector(15 downto 0);
 
+	-- performance signals
+
+	signal cycle_count : std_logic_vector(15 downto 0);
+	signal crush_count : std_logic_vector(15 downto 0);
+
 begin
 
 	Inst_IFetch: IFetch PORT MAP(
@@ -436,7 +445,27 @@ begin
 	-- Program Counter is updated in the EXM cycle
 	-- (when the jump address is calculated)
 	pc_en <= EXM_e;
-	
+
+	-- Performance counters
+	-- cycle counter
+	process(clk, rst)
+	begin
+		if rst = '1' then
+			cycle_count <= x"0000";
+		elsif rising_edge(clk) then
+			cycle_count <= cycle_count + 1;
+		end if;
+	end process;
+
+	-- crush counter
+	process(clk, rst, crush)
+	begin
+		if rst = '1' then
+			crush_count <= x"0000";
+		elsif rising_edge(clk) and crush = '1' then
+			crush_count <= crush_count + 1;
+		end if;
+	end process;
 
 	output <= wb_output;	-- for circuit to be syntesised
 end Behavioral;
