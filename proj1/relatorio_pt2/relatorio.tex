@@ -49,12 +49,12 @@
 	
 	O primeiro passo para garantir o funcionamento em \textit{pipeline} é colocar registos entre os vários andares do processador, i.e.\ introduzir registos entre IF e ID/RF, ID/RF e EX/MEM e entre EX/MEM e WB.
 	
-	Estes registos já constavam da descrição do processador entregue na primeira parte deste trabalho. Deste modo, relativamente a estes registos bastou fazer com que os seus sinais de \textit{enable} sejam agora controlados pelo próprio processador e não por uma máquina de estados externa, como era feito na primeira parte do trabalho. Na \autoref{fig:circuit_pt1} recorda-se o circuito do processador descrito na primeira parte do projecto.
+	Estes registos já constavam da descrição do processador entregue na primeira parte deste trabalho. Deste modo, relativamente a estes registos bastou fazer com que os seus sinais de \textit{enable} não dependessem duma máquina de estados, como era feito na primeira parte do trabalho, e passassem a estar constantemente ligados. Na \autoref{fig:circuit_pt1} recorda-se o circuito do processador descrito na primeira parte do projecto.
 	
 		\begin{figure}[h]
 			\centering
 			\includegraphics[width=1.\textwidth]{img/circuit_pt1}
-			\caption{Circuito do \textmu RISC na primeira parte do trabalho. Podem ser vistos os registo entre andares}
+			\caption{Circuito do \textmu RISC na primeira parte do trabalho. Podem ser vistos os registos entre andares}
 			\label{fig:circuit_pt1}
 		\end{figure}
 	
@@ -64,7 +64,7 @@
 	
 	Não é implementada execução fora de ordem pelo que não existem anti-dependências. Ou seja, esta arquitectura tem apenas o tipo de conflitos de \textit{read after write}---RAW.
 	
-	Para detectar os conflitos de dados basta, neste caso, verificar se nos andares a seguir ao ID/RF está uma instrução que vá escrever num dos registos lidos pela instrução que está actualmente no ID/RF. Ou seja, existe um conflito de dados se o \textit{enable} do RF estiver activo no andar EX/MEM ou no WB e o endereço do registo que vai ser escrito corresponde a um dos que está a ser lido em ID/RF. Se isto se verificar é feito um \textit{stall} do processador---os andares do ID/RF e IF ficam parados e a instrução em EX/MEM avança para WB.
+	Para detectar os conflitos de dados basta, neste caso, verificar se nos andares a seguir ao ID/RF está uma instrução que vá escrever num dos registos lidos pela instrução que está actualmente no ID/RF. Ou seja, existe um conflito de dados se o \textit{write-enable} do RF estiver activo no andar EX/MEM ou no WB e o endereço do registo que vai ser escrito corresponde a um dos que está a ser lido em ID/RF. Se isto se verificar é feito um \textit{stall} do processador---os andares do ID/RF e IF ficam parados e a instrução em EX/MEM avança para WB.
 	
 	Na verdade os sinais em WB não são verificados porque a escrita para o RF foi tornada transparente, como descrito em \ref{subsec:RF_write}.
 	
@@ -75,7 +75,7 @@
 	
 	Na primeira parte do trabalho o RF era escrito sempre no flanco de relógio ascendente. Com a introdução do funcionamento em \textit{pipeline}, isto obriga a fazer um \textit{stall} sempre que num mesmo ciclo o WB for escrever num registo R$x$ e em ID/RF estiver a ser feito \textit{fetch} do valor de R$x$.
 	
-	Para resolver este problema o RF passa a ser escrito no flanco de relógio descendente. Assim, quando R$x$ é lido (no flanco ascendente) o valor de R$x$ já foi actualizado no flanco descendente, pelo que não é necessário atrasar a execução da instrução que está a ler o operando R$x$. É de notar que isto é apenas possível devido ao curto caminho de propagação no andar de WB.
+	Para resolver este problema o RF passa a ser escrito no flanco de relógio descendente. Assim, quando R$x$ é lido (no flanco ascendente) o valor de R$x$ já foi actualizado no flanco descendente, pelo que não é necessário atrasar a execução da instrução que está a ler o operando R$x$. É de notar que isto é apenas possível devido ao curto caminho de propagação no andar de WB e no andar de ID/RF a juzante do RF.
 	
 	\subsection{\textit{Forwarding}}
 	
@@ -83,7 +83,7 @@
 	
 	Quando é verificada a existência de um conflito é feita uma substituição do valor lido do RF pelo valor correcto, reencaminhado da saída do EX/MEM. O valor reencaminhado tanto pode ser um resultado da ALU como um valor lido da memória, dependendo do tipo de operação que o EX/MEM está a executar.
 	
-	Com este \textit{forwarding}, em conjunto com a escrita transparente descrita em \ref{subsec:RF_write}, os conflitos de dados ficam totalmente resolvidos. É de notar que com este método de mitigação pode-se aumentar ligeiramente o caminho crítico mas, no geral é melhor pois deixam de existir \textit{stalls} devidos a conflitos de dados.
+	Com este \textit{forwarding}, em conjunto com a escrita transparente descrita em \ref{subsec:RF_write}, os conflitos de dados ficam totalmente resolvidos. É de notar que com este método de mitigação pode-se aumentar ligeiramente o caminho crítico mas deixam de existir \textit{stalls} devidos a conflitos de dados (diminui a frequência mas diminui também o CPI).
 	
 	A \autoref{fig:circuit_data_forwarding} representa as mudanças efectuadas no circuito para a implementação do \textit{forwarding} de dados. É de notar que apenas estão representados os componentes relevantes para o circuito de \textit{forwarding} de dados.
 	
@@ -110,6 +110,7 @@
 
 	Nos casos em que é feito \textit{crush} o PC é actualizado com o endereço correcto, e continua-se a execução do programa.
 	
+	
 
 	\subsection{Somador em ID/RF}
 	
@@ -131,15 +132,25 @@
 	
 	A BTB tem portanto 256 entradas de 25 bits, o que totaliza 800 bytes.
 	
-	\section{Testes e Simulações}
+	\subsection{Problemas iniciais}
+	
+	Ao inserir o BTB, o processador deixou de funcionar. Após algum debugging foi determinado que o problema se devia às instruções do tipo \texttt{NOP}. O modo como são implementadas estas instruções corresponde a um \texttt{jf.true 0}, isto é, a um \textit{Jump} caso a condição seja falsa, com condição constante verdadeira.
+	
+	Isto significa que o detector de conflitos de controlo vai calcular que o verdadeiro endereço seguinte é PC+1. No entanto, quando é feito um \textit{crush}, a instrução é substituída com um NOP, e o PC corrigido. O valor corrigido é, salvo raras excepções, diferente do PC+1 correspondente ao NOP. Isto leva a um segundo crush. Este segundo leva a um terceiro, e assim sucessivamente, \textit{ad~nauseam}.
+	
+	Um aspecto curioso é que este \textit{bug} deveria ocorrer mesmo antes da instalação do BTB. No entanto, isso não se verificou. O detector de conflitos recebe dois parâmetros do andar de IF: o endereço actual incrementado (PC+1), e o endereço que vai, de facto, ser carregado. Antes do BTB, este último parâmetro é quase sempre PC+1, salvo quando é efectuada uma correcção (\textit{crush}). No entanto, por uma questão de simplicidade, esse parâmetro foi ligado a PC+1, prevenindo então o \textit{bug}.
+	
+	Uma vez instalado o módulo de previsão de salto, o segundo parâmetro do detector de conflitos passou a ser correcto. Assim, o \textit{bug} fazia o processador entrar em parafuso de \texttt{NOP}s. A maneira como este problema foi solucionado consistiu na introdução de um único \textit{flip-flop} de estado, que está activo nos ciclos imediatamente a seguir a um \textit{crush}, e previne \textit{crushes} causados por \textit{crushes}.
+		
+	%\section{Testes e Simulações} <== Fazemos? Querem meter? /!\ Se sim metemos fotos, ou só texto? Se calhar era melhor meter fotos... Na m'apetece nada. But a man's gotta do what a man's gotta do.
 		
 	\section{Conclusão}
 	
 	Com esta actividade experimental o grupo conseguiu transformar o processador multi-ciclo da primeira parte laboratorial num processador com funcionamento em \textit{pipeline}. Deste modo é possível então obter uma maior rapidez na execução de programas, aumentando para isso o número de instruções que são executadas por ciclo de relógio.
 	
-	Para resolver os vários conflitos de dados e de controlo que surgem num processador em \textit{pipeline}, resolvemos adoptar várias tácticas, entre elas \textit{forwarding} de dados e utilização de uma \textit{Branch Target Buffer} para predição dinâmica de saltos.
+	Para resolver os vários conflitos de dados e de controlo que surgem num processador em \textit{pipeline}, foram adoptadas várias tácticas, entre elas \textit{forwarding} de dados e utilização de uma \textit{Branch Target Buffer} para predição dinâmica de saltos.
 	
-	 Todos os testes e simulações realizados permitiram concluir que o processador desenvolvido foi concluído com sucesso.
+	 Todos os testes e simulações realizados permitiram concluir que o processador desenvolvido funcionava de acordo com as especificações.
 	 
 	  Em suma, este trabalho laboratorial permitiu ao grupo consolidar os conceitos aprendidos durante as aulas teóricas sobre o funcionamento em \textit{pipeline}, resolução de conflitos de dados e de conflitos de controlo, bem como predição dinâmica de saltos e circuitos de \textit{forwarding}.
 
