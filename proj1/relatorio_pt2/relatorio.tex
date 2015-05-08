@@ -132,6 +132,15 @@
 	
 	A BTB tem portanto 256 entradas de 25 bits, o que totaliza 800 bytes.
 	
+	A \autoref{fig:circuit_control_hazard} mostra então o circuito implementado nos andares de IF e ID/RF para soluccionar os conflitos de controlo.
+	
+	\begin{figure}[h]
+			\centering
+			\includegraphics[width=1.\textwidth]{img/circuit_control_hazard}
+			\caption{Circuito para a resolução de conflitos de controlo, implementado nos andares de IF e ID/RF.}
+			\label{fig:circuit_control_hazard}
+		\end{figure}
+	
 	\subsection{Problemas iniciais}
 	
 	Ao inserir o BTB, o processador deixou de funcionar. Após algum debugging foi determinado que o problema se devia às instruções do tipo \texttt{NOP}. O modo como são implementadas estas instruções corresponde a um \texttt{jf.true 0}, isto é, a um \textit{Jump} caso a condição seja falsa, com condição constante verdadeira.
@@ -142,7 +151,54 @@
 	
 	Uma vez instalado o módulo de previsão de salto, o segundo parâmetro do detector de conflitos passou a ser correcto. Assim, o \textit{bug} fazia o processador entrar em parafuso de \texttt{NOP}s. A maneira como este problema foi solucionado consistiu na introdução de um único \textit{flip-flop} de estado, que está activo nos ciclos imediatamente a seguir a um \textit{crush}, e previne \textit{crushes} causados por \textit{crushes}.
 		
-	%\section{Testes e Simulações} <== Fazemos? Querem meter? /!\ Se sim metemos fotos, ou só texto? Se calhar era melhor meter fotos... Na m'apetece nada. But a man's gotta do what a man's gotta do.
+	\section{Performance}
+	
+	Em termos de \textit{performance}, o processador foi simulado utilizando a FPGA: Virtex7 XC7VX330T-2, tendo-se obtido como métricas:
+	
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{lllll}
+			Tempo mínimo de relógio &  \\
+			Frequência &  \\
+			Área utilizada &  \\
+			
+		\end{tabular}
+	\end{table}
+	  
+	
+	
+	\section{Testes e Simulações} 
+		
+	Para demostrar a funcionalidade do processador foram corridos os ficheiros de teste disponibilizados pelo professor, sendo que, para os ficheiros disponibilizados se obtiveram os seguintes resultados:
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{lllll}
+			Ficheiros de Teste & Número de Ciclos & \multicolumn{3}{l}{Crushes feitos} \\
+			demo\_lab\_1 & 58 & 0 \\
+			demo\_lab\_2 & 2342 & 90 \\
+			demo\_lab\_3 & 1048 & 70
+		\end{tabular}
+	\end{table}
+		A \autoref{fig:imem_1}, \autoref{fig:imem_2} e \autoref{fig:imem_3} representam o estado da memória no final de se correrem os programas.
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=1.\textwidth]{img/imem_1}
+			\caption{MEM para o teste demo_lab_1.}
+			\label{fig:imem_1}
+		\end{figure}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=1.\textwidth]{img/imem_2}
+			\caption{MEM para o teste demo_lab_2.}
+			\label{fig:imem_2}
+		\end{figure}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=1.\textwidth]{img/imem_3}
+			\caption{MEM para o teste demo_lab_3.}
+			\label{fig:imem_3}
+		\end{figure}
 		
 	\section{Conclusão}
 	
