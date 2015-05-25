@@ -1,0 +1,16 @@
+To compile and run the example, please do:
+
+A. initialize the Intel Compiler environment
+    initicc
+
+B. change the LD_LIBRARY PATH (in most machines, it should be automatically performed in step A)
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64/
+
+C. compile using...
+   - single-core CPU:
+        icc -O2 -L/usr/local/lib64 -lpapi exemplo.cpp -o exemplo
+   - or multi-core CPU:
+        icc -O2 -L/usr/local/lib64 -openmp -lpapi exemplo.cpp -o exemplo
+
+D. Run
+    ./exemplo
