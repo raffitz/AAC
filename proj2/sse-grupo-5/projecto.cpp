@@ -270,6 +270,14 @@ float sse256_vect_power(float *f1, int len) {
 	return sqrt(aux[0]);
 }
 
+float randy(){
+	return ( rand() * 2.0 / RAND_MAX ) - 1;
+}
+
+void init_function(float x){
+	return sin(0.02 * x) + sin(0.001 * x) + (0.1*randy());
+}
+
 void init_float_vect(float *vect, int len, float min, float max){
 	float scale = max-min;
 	int i;
@@ -393,9 +401,11 @@ int main(void) {
 	  exit(1);
 	}
 
-   srand(time(NULL));
+	srand(time(NULL));
 
- 	printf("==========================================================================\n");
+	
+
+	printf("==========================================================================\n");
 	printf("   COMPUTING POWER SPEED-UP\n");
  	printf("==========================================================================\n");
 	printf("| Vector Length | Original Time [us] | SSE-128 speedup | SSE-256 speedup |\n");
