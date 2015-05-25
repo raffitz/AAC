@@ -316,7 +316,7 @@ __m128 sse128_exp(__m128 a){
 	do{
 		temp = _mm_div_ps(temp,_mm_set_ps1(i));
 		acc = _mm_mul_ps(acc,a);
-		den = _mm_add(den,_mm_div_ps(acc,temp));
+		den = _mm_add_ps(den,_mm_div_ps(acc,temp));
 		i--;
 	}while(i>-5);
 	return _mm_div_ps(_mm_set_ps1(1.0),den);
@@ -325,7 +325,7 @@ __m128 sse128_exp(__m128 a){
 void sse128_smoothing(float *x,float *y,float *res, int len) {
 	int i,j;
 	__m128 vx1,vx2,vy,va,vb,vres,factor;
-	__m128 smooth = _mm_set_ps1(2*_SMOOTH*SMOOTH);
+	__m128 smooth = _mm_set_ps1(2*_SMOOTH*_SMOOTH);
 	float *auxx1,*auxx2,*auxy,*auxres;
 
 	for (i=0,auxx1 = x,auxres = res; i<(len>>2); i++,auxx1+=4,auxres+=4) {
@@ -353,22 +353,23 @@ void sse128_smoothing(float *x,float *y,float *res, int len) {
 
 __m256 sse256_exp(__m256 a){
 	int i = -1;
-	__m256 den = _mm_set_ps1(1.0);
+	__m256 den = _mm256_set_ps(1,1,1,1,1,1,1,1);
 	__m256 acc = den;
 	__m256 temp = den;
 	do{
-		temp = _mm256_div_ps(temp,_mm256_set_ps1(i));
+		temp = _mm256_div_ps(temp,_mm256_set_ps(i,i,i,i,i,i,i,i));
 		acc = _mm256_mul_ps(acc,a);
-		den = _mm256_add(den,_mm_div_ps(acc,temp));
+		den = _mm256_add_ps(den,_mm256_div_ps(acc,temp));
 		i--;
 	}while(i>-5);
-	return _mm256_div_ps(_mm256_set_ps1(1.0),den);
+	return _mm256_div_ps(_mm256_set_ps(1,1,1,1,1,1,1,1),den);
 }
 
 void sse256_smoothing(float *x,float *y,float *res, int len) {
 	int i,j;
 	__m256 vx1,vx2,vy,va,vb,vres,factor;
-	__m256 smooth= _mm256_set_ps1(2*_SMOOTH*_SMOOTH);
+	float s = 2*_SMOOTH*_SMOOTH;
+	__m256 smooth= _mm256_set_ps(s,s,s,s,s,s,s,s);
 	float *auxx1,*auxx2,*auxy,*auxres;
 
 	
@@ -405,7 +406,7 @@ void smoothing_speedup(long long len,long long iters, double *timeVector){
 	x = (float*) aligned_malloc( len * sizeof(float) );
 	y = (float*) aligned_malloc( len * sizeof(float) );
 	res = (float*) aligned_malloc( len * sizeof(float) );
-	init_vector(x,y);
+	init_vector(x,y,len);
 
 	/* WARM UP CACHE FOR NORMAL CASE */
 	normal_smoothing(x,y,res,len);
@@ -418,22 +419,22 @@ void smoothing_speedup(long long len,long long iters, double *timeVector){
 	timeVector[0] = ((double)(tEnd - tStart))*1000 / iters;
 
 	/* WARM UP CACHE FOR SSE128 CASE */
-	res = sse128_smoothing(x,y,res,len);
+	sse128_smoothing(x,y,res,len);
 
 	/* COMPUTE AVERAGE TIME FOR SSE128 CASE */
 	tStart = PAPI_get_real_usec();
 	for (i=0; i<iters; i++)
-		res = sse128_smoothing(x,y,res,len);
+		sse128_smoothing(x,y,res,len);
 	tEnd = PAPI_get_real_usec();
 	timeVector[1] = ((double)(tEnd - tStart))*1000 / iters;
 	
 	/* WARM UP CACHE FOR SSE256 CASE */
-	res = sse256_smoothing(x,y,res,len);
+	sse256_smoothing(x,y,res,len);
 
 	/* COMPUTE AVERAGE TIME FOR SSE256 CASE */
 	tStart = PAPI_get_real_usec();
 	for (i=0; i<iters; i++)
-		res = sse256_smoothing(x,y,res,len);
+		sse256_smoothing(x,y,res,len);
 	tEnd = PAPI_get_real_usec();
 	timeVector[2] = ((double)(tEnd - tStart))*1000 / iters;
 
