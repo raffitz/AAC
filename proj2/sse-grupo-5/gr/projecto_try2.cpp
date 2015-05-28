@@ -95,74 +95,40 @@ void normal_smoothing(float*x,float*y,float*res,int len){
 }
 
 
-//void sse128_smoothing(float *x,float *y,float *res, int len) {
-//	int i,j,k;
-//	__m128 vx1,vx2,vy,va,vb,vres,factor;
-//	__m128 smooth = _mm_set_ps1(2*_SMOOTH*_SMOOTH);
-//	float *auxx1,*auxx2,*auxy,*auxres;
-//
-//	for (i=0,auxx1 = x,auxres = res; i<(len>>2); i++,auxx1+=4,auxres+=4) {
-//		// load (aligned) packed single precision floating point
-//		vx1 = _mm_load_ps(auxx1);
-//		va = vb = _mm_setzero_ps();
-//		for(j = 0,auxx2 = x,auxy = y;j<(len>>2);j++,auxx2+=4,auxy+=4){
-//			vx2 = _mm_load_ps(auxx2);
-//			vy = _mm_load_ps(auxy);
-//			k = 0;
-//			while(1){
-//				factor = _mm_sub_ps(vx1,vx2);
-//				factor = _mm_mul_ps(factor,factor);
-//				factor = _mm_sub_ps(_mm_setzero_ps(),factor);
-//				factor = _mm_div_ps(factor,smooth);
-//				factor = _mm_exp_ps(factor);
-//				va = _mm_add_ps(va,_mm_mul_ps(factor,vy));
-//				vb = _mm_add_ps(vb,factor);
-//				k++;
-//				if(k>3) break;
-//				vx2 = _mm_permute(vx2,85);
-//				vy = _mm_permute(vy,85);
-//			}
-//		}
-//
-//		vres = _mm_div_ps(va,vb);
-//
-//		_mm_store_ps(auxres,vres);
-//		
-//	}
-//}
-
-
 void sse128_smoothing(float *x, float *y, float *res, int len)
 {
 	__m128 sumA, sumB;
-	float *xi, *xj;
+	float *xi, *xj, *yj, *resi = res;
 
-	__m128 divisor = _mm_set_ps1(SMOOTH*SMOOTH);
+	__m128 divisor = _mm_set_ps1(2*_SMOOTH*_SMOOTH);
 	__m128 dividend;
 	__m128 quotient;
 
-	for(xi=x; xi < x+len; xi++, res+=4)
+	for(xi=x; xi < x+len; xi++, resi+=4)
 	{
 		sumA = sumB = _mm_setzero_ps();
 
-		for(xj=y; xj < y+len; xj+=4)
+		for(xj=x, yj=y; xj < x+len; xj+=4, yj+=4)
 		{
 			// e^(-(xi-xj)^2)
 			dividend = _mm_exp_ps(_mm_sub_ps(_mm_setzero_ps(),
-						_mm_mul_ps(_mm_sub_ps(_mm_load_ps(xi), _mm_load_ps(xj)),
-							_mm_sub_ps(_mm_load_ps(xi), _mm_load_ps(xj)))));
+						_mm_mul_ps(
+							_mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj)),
+							_mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj))
+							)));
 
 			quotient = _mm_div_ps(dividend, divisor);
 
 			sumA = _mm_add_ps(sumA, quotient);
-			sumB = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(xj), quotient));
+			sumB = _mm_add_ps(sumB, _mm_mul_ps(_mm_load_ps(yj), quotient));
 		}
 
-		_mm_store_ps(res, _mm_div_ps(sumA, sumB));
+		_mm_store_ps(resi, _mm_div_ps(sumA, sumB));
 	}
 }
 
 
+// no changes here
 void sse256_smoothing(float *x,float *y,float *res, int len) {
 	int i,j;
 	__m256 vx1,vx2,vy,va,vb,vres,factor;
@@ -219,7 +185,7 @@ void smoothing_speedup(long long len,long long iters, double *timeVector){
 	tEnd = PAPI_get_real_usec();
 	timeVector[0] = ((double)(tEnd - tStart))*1000 / iters;
 
-	sprintf(name,"normal_%d.csv",len);
+	sprintf(name,"normal_%llu.csv",len);
 	write_results(name,x,y,res,len);
 	
 
@@ -234,7 +200,7 @@ void smoothing_speedup(long long len,long long iters, double *timeVector){
 	timeVector[1] = ((double)(tEnd - tStart))*1000 / iters;
 
 
-	sprintf(name,"128_%d.csv",len);
+	sprintf(name,"128_%llu.csv",len);
 	write_results(name,x,y,res,len);
 	
 	/* WARM UP CACHE FOR SSE256 CASE */
@@ -247,7 +213,7 @@ void smoothing_speedup(long long len,long long iters, double *timeVector){
 	tEnd = PAPI_get_real_usec();
 	timeVector[2] = ((double)(tEnd - tStart))*1000 / iters;
 
-	sprintf(name,"256_%d.csv",len);
+	sprintf(name,"256_%llu.csv",len);
 	write_results(name,x,y,res,len);
 	
 	/* FREE ALLOCATED MEMORY */
@@ -279,8 +245,8 @@ int main(void) {
  	printf("==========================================================================\n");
 	printf("| Vector Length | Original Time [us] | SSE-128 speedup | SSE-256 speedup |\n");
 	printf("+---------------+--------------------+-----------------+-----------------+\n");
-	for (i=4;i<12; i++){
-		smoothing_speedup(1<<i,128,timeVector);
+	for (i=4;i<14; i++){
+		smoothing_speedup(1<<i,10,timeVector);
 		printf("|   %10d  |   %16.3f |    %9.6f    |    %9.6f    |\n", 1<<i, timeVector[0], timeVector[0]/timeVector[1] , timeVector[0]/timeVector[2] );
 	}
 	printf("+---------------+--------------------+-----------------+-----------------+\n\n");
