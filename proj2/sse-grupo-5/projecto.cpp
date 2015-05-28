@@ -115,6 +115,23 @@ void sse128_smoothing(float *x,float *y,float *res, int len) {
 	__m128 smooth = _mm_set_ps1(2*_SMOOTH*_SMOOTH);
 	float *auxx1,*auxx2,*auxy,*auxres;
 
+	for (j=0,auxx2 = x,auxy = y,auxres = res;j<(len>>2);j++,auxx2+=4,auxy+=4,auxres+=4){
+		vx2 = _mm_load_ps(auxx2);
+		vy = _mm_load_ps(auxy);
+		va = vb = _mm_setzero_ps();
+		for(i=0;i<len;i++){
+			factor = _mm_sub_ps(_mm_set_ps1(x[i]),vx2);
+			factor = _mm_mul_ps(factor,factor);
+			factor = _mm_sub_ps(_mm_setzero_ps(),factor);
+			factor = _mm_div_ps(factor,smooth);
+			factor = _mm_exp_ps(factor);
+			va = _mm_add_ps(va,_mm_mul_ps(factor,vy));
+			vb = _mm_add_ps(vb,factor);
+		}
+		vres = _mm_div_ps(va,vb);
+		_mm_store_ps(auxres,vres);
+	}
+	/*
 	for (i=0,auxx1 = x,auxres = res; i<(len>>2); i++,auxx1+=4,auxres+=4) {
 		// load (aligned) packed single precision floating point
 		vx1 = _mm_load_ps(auxx1);
@@ -122,20 +139,40 @@ void sse128_smoothing(float *x,float *y,float *res, int len) {
 		for(j = 0,auxx2 = x,auxy = y;j<(len>>2);j++,auxx2+=4,auxy+=4){
 			vx2 = _mm_load_ps(auxx2);
 			vy = _mm_load_ps(auxy);
-			k = 0;
-			while(1){
-				factor = _mm_sub_ps(vx1,vx2);
-				factor = _mm_mul_ps(factor,factor);
-				factor = _mm_sub_ps(_mm_setzero_ps(),factor);
-				factor = _mm_div_ps(factor,smooth);
-				factor = _mm_exp_ps(factor);
-				va = _mm_add_ps(va,_mm_mul_ps(factor,vy));
-				vb = _mm_add_ps(vb,factor);
-				k++;
-				if(k>3) break;
-				vx2 = _mm_permute(vx2,85);
-				vy = _mm_permute(vy,85);
-			}
+			factor = _mm_sub_ps(vx1,vx2);
+			factor = _mm_mul_ps(factor,factor);
+			factor = _mm_sub_ps(_mm_setzero_ps(),factor);
+			factor = _mm_div_ps(factor,smooth);
+			factor = _mm_exp_ps(factor);
+			va = _mm_add_ps(va,_mm_mul_ps(factor,vy));
+			vb = _mm_add_ps(vb,factor);
+			vx2 = _mm_permute_ps(vx2,27);
+			vy = _mm_permute_ps(vy,27);
+			factor = _mm_sub_ps(vx1,vx2);
+			factor = _mm_mul_ps(factor,factor);
+			factor = _mm_sub_ps(_mm_setzero_ps(),factor);
+			factor = _mm_div_ps(factor,smooth);
+			factor = _mm_exp_ps(factor);
+			va = _mm_add_ps(va,_mm_mul_ps(factor,vy));
+			vb = _mm_add_ps(vb,factor);
+			vx2 = _mm_permute_ps(vx2,27);
+			vy = _mm_permute_ps(vy,27);
+			factor = _mm_sub_ps(vx1,vx2);
+			factor = _mm_mul_ps(factor,factor);
+			factor = _mm_sub_ps(_mm_setzero_ps(),factor);
+			factor = _mm_div_ps(factor,smooth);
+			factor = _mm_exp_ps(factor);
+			va = _mm_add_ps(va,_mm_mul_ps(factor,vy));
+			vb = _mm_add_ps(vb,factor);
+			vx2 = _mm_permute_ps(vx2,27);
+			vy = _mm_permute_ps(vy,27);
+			factor = _mm_sub_ps(vx1,vx2);
+			factor = _mm_mul_ps(factor,factor);
+			factor = _mm_sub_ps(_mm_setzero_ps(),factor);
+			factor = _mm_div_ps(factor,smooth);
+			factor = _mm_exp_ps(factor);
+			va = _mm_add_ps(va,_mm_mul_ps(factor,vy));
+			vb = _mm_add_ps(vb,factor);
 		}
 
 		vres = _mm_div_ps(va,vb);
@@ -143,6 +180,7 @@ void sse128_smoothing(float *x,float *y,float *res, int len) {
 		_mm_store_ps(auxres,vres);
 		
 	}
+	*/
 }
 
 __m256 sse256_exp(__m256 a){
