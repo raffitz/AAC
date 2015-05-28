@@ -68,7 +68,7 @@ float init_function(float x){
 
 void init_vector(float* x, float* y, int len){
 	int i;
-
+	
 	for(i=0;i<len;i++){
 		x[i]=(float)i/10;
 	}
@@ -112,9 +112,9 @@ __m128 sse128_exp(__m128 a){
 void sse128_smoothing(float *x,float *y,float *res, int len) {
 	int i,j,k;
 	__m128 vx1,vx2,vy,va,vb,vres,factor;
-	__m128 smooth = _mm_set_ps1(2*_SMOOTH*_SMOOTH);
+	__m128 smooth = _mm_set_ps1(-2.0*_SMOOTH*_SMOOTH);
 	float *auxx1,*auxx2,*auxy,*auxres;
-
+	/*
 	for (j=0,auxx2 = x,auxy = y,auxres = res;j<(len>>2);j++,auxx2+=4,auxy+=4,auxres+=4){
 		vx2 = _mm_load_ps(auxx2);
 		vy = _mm_load_ps(auxy);
@@ -131,11 +131,23 @@ void sse128_smoothing(float *x,float *y,float *res, int len) {
 		vres = _mm_div_ps(va,vb);
 		_mm_store_ps(auxres,vres);
 	}
-	/*
+	*/
+	
 	for (i=0,auxx1 = x,auxres = res; i<(len>>2); i++,auxx1+=4,auxres+=4) {
 		// load (aligned) packed single precision floating point
 		vx1 = _mm_load_ps(auxx1);
 		va = vb = _mm_setzero_ps();
+
+
+		for(j=0;j<len;j++){
+			factor = _mm_sub_ps(vx1,_mm_set_ps1(x[j]));
+			factor = _mm_mul_ps(factor,factor);
+			factor = _mm_div_ps(factor,smooth);
+			factor = _mm_exp_ps(factor);
+			vb = _mm_add_ps(vb,factor);
+			va = _mm_add_ps(va,_mm_mul_ps(factor,_mm_set_ps1(y[j])));
+		}
+		/*
 		for(j = 0,auxx2 = x,auxy = y;j<(len>>2);j++,auxx2+=4,auxy+=4){
 			vx2 = _mm_load_ps(auxx2);
 			vy = _mm_load_ps(auxy);
@@ -174,13 +186,14 @@ void sse128_smoothing(float *x,float *y,float *res, int len) {
 			va = _mm_add_ps(va,_mm_mul_ps(factor,vy));
 			vb = _mm_add_ps(vb,factor);
 		}
+		*/
 
 		vres = _mm_div_ps(va,vb);
 
 		_mm_store_ps(auxres,vres);
 		
 	}
-	*/
+	
 }
 
 __m256 sse256_exp(__m256 a){
