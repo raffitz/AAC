@@ -99,31 +99,38 @@ void sse128_smoothing(float *x, float *y, float *res, int len)
 {
 	__m128 sumA, sumB;
 	float *xi, *xj, *yj, *resi = res;
+	short i;
 
 	__m128 divisor = _mm_set_ps1(2*_SMOOTH*_SMOOTH);
 	__m128 dividend;
 	__m128 quotient;
+	__m128 exponential;
 
-	for(xi=x; xi < x+len; xi++, resi+=4)
+	for(xi=x, i=0; xi < x+len; xi++, i++)
 	{
 		sumA = sumB = _mm_setzero_ps();
 
 		for(xj=x, yj=y; xj < x+len; xj+=4, yj+=4)
 		{
-			// e^(-(xi-xj)^2)
-			dividend = _mm_exp_ps(_mm_sub_ps(_mm_setzero_ps(),
+			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
+			dividend = _mm_sub_ps(_mm_setzero_ps(),
 						_mm_mul_ps(
 							_mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj)),
 							_mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj))
-							)));
+							));
 
-			quotient = _mm_div_ps(dividend, divisor);
+			exponential = _mm_exp_ps(_mm_div_ps(dividend, divisor));
 
-			sumA = _mm_add_ps(sumA, quotient);
-			sumB = _mm_add_ps(sumB, _mm_mul_ps(_mm_load_ps(yj), quotient));
+			sumA = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj), exponential));
+			sumB = _mm_add_ps(sumB, exponential);
 		}
 
-		_mm_store_ps(resi, _mm_div_ps(sumA, sumB));
+		if(i==3)
+		{
+			_mm_store_ps(resi, _mm_div_ps(sumA, sumB));
+			resi+=4;
+			i=-1;	// will be incremented right away. so -1 and not 0
+		}
 	}
 }
 
