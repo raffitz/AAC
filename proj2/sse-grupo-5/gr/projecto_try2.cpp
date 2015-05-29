@@ -98,15 +98,16 @@ void normal_smoothing(float*x,float*y,float*res,int len){
 void sse128_smoothing(float *x, float *y, float *res, int len)
 {
 	__m128 sumA, sumB;
-	float *xi, *xj, *yj, *resi = res;
-	short i;
+	float *xi, *xj, *yj;
+	float aux[4];
+	float sumAtot, sumBtot;
 
 	__m128 divisor = _mm_set_ps1(2*_SMOOTH*_SMOOTH);
 	__m128 dividend;
 	__m128 quotient;
 	__m128 exponential;
 
-	for(xi=x, i=0; xi < x+len; xi++, i++)
+	for(xi=x; xi < x+len; xi++, res++)
 	{
 		sumA = sumB = _mm_setzero_ps();
 
@@ -125,12 +126,13 @@ void sse128_smoothing(float *x, float *y, float *res, int len)
 			sumB = _mm_add_ps(sumB, exponential);
 		}
 
-		if(i==3)
-		{
-			_mm_store_ps(resi, _mm_div_ps(sumA, sumB));
-			resi+=4;
-			i=-1;	// will be incremented right away. so -1 and not 0
-		}
+		_mm_store_ps(aux, sumA); 
+		sumAtot = aux[0] + aux[1] + aux[2] + aux[3];
+
+		_mm_store_ps(aux, sumB); 
+		sumBtot = aux[0] + aux[1] + aux[2] + aux[3];
+
+		*res = sumAtot/sumBtot;
 	}
 }
 
@@ -253,7 +255,7 @@ int main(void) {
 	printf("| Vector Length | Original Time [us] | SSE-128 speedup | SSE-256 speedup |\n");
 	printf("+---------------+--------------------+-----------------+-----------------+\n");
 	for (i=4;i<14; i++){
-		smoothing_speedup(1<<i,10,timeVector);
+		smoothing_speedup(1<<i, 5, timeVector);
 		printf("|   %10d  |   %16.3f |    %9.6f    |    %9.6f    |\n", 1<<i, timeVector[0], timeVector[0]/timeVector[1] , timeVector[0]/timeVector[2] );
 	}
 	printf("+---------------+--------------------+-----------------+-----------------+\n\n");
