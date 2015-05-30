@@ -1,5 +1,6 @@
 
-SOURCE = simd_128.cpp
+#SOURCE = simd_128.cpp
+SOURCE = simd_256.cpp
 TARGET = sse5
 
 $(TARGET): $(SOURCE)

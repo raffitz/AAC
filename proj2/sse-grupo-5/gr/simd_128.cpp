@@ -98,7 +98,7 @@ void normal_smoothing(float*x,float*y,float*res,int len){
 void sse128_smoothing_simple(float *x, float *y, float *res, int len)
 {
 	float *xi, *xj, *yj;
-	float aux[4];
+	float *aux = (float*) aligned_malloc(4*sizeof(float));
 	float sumAtot, sumBtot;
 
 	__m128 sumA, sumB;
@@ -134,13 +134,15 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len)
 
 		*res = sumAtot/sumBtot;
 	}
+
+	aligned_free(aux);
 }
 
 
 void sse128_smoothing_unroll2(float *x, float *y, float *res, int len)
 {
 	float *xi, *xj, *yj;
-	float aux[4];
+	float *aux = (float*) aligned_malloc(4*sizeof(float));
 	float sumAtot, sumBtot;
 
 	__m128 sumA, sumB, sumA_1, sumB_1;
@@ -194,13 +196,15 @@ void sse128_smoothing_unroll2(float *x, float *y, float *res, int len)
 
 		*res = sumAtot/sumBtot;
 	}
+
+	aligned_free(aux);
 }
 
 
 void sse128_smoothing_unroll3(float *x, float *y, float *res, int len)
 {
 	float *xi, *xj, *yj;
-	float aux[4];
+	float *aux = (float*) aligned_malloc(4*sizeof(float));
 	float sumAtot, sumBtot;
 
 	__m128 sumA, sumB, sumA_1, sumB_1, sumA_2, sumB_2;
@@ -272,13 +276,15 @@ void sse128_smoothing_unroll3(float *x, float *y, float *res, int len)
 
 		*res = sumAtot/sumBtot;
 	}
+
+	aligned_free(aux);
 }
 
 
 void sse128_smoothing_unroll4(float *x, float *y, float *res, int len)
 {
 	float *xi, *xj, *yj;
-	float aux[4];
+	float *aux = (float*) aligned_malloc(4*sizeof(float));
 	float sumAtot, sumBtot;
 
 	__m128 sumA, sumB, sumA_1, sumB_1, sumA_2, sumB_2, sumA_3, sumB_3;
@@ -368,13 +374,15 @@ void sse128_smoothing_unroll4(float *x, float *y, float *res, int len)
 
 		*res = sumAtot/sumBtot;
 	}
+
+	aligned_free(aux);
 }
 
 
 void sse128_smoothing_unroll8(float *x, float *y, float *res, int len)
 {
 	float *xi, *xj, *yj;
-	float aux[4];
+	float *aux = (float*) aligned_malloc(4*sizeof(float));
 	float sumAtot, sumBtot;
 
 	__m128 sumA, sumB, sumA_1, sumB_1, sumA_2, sumB_2, sumA_3, sumB_3;
@@ -540,6 +548,8 @@ void sse128_smoothing_unroll8(float *x, float *y, float *res, int len)
 
 		*res = sumAtot/sumBtot;
 	}
+
+	aligned_free(aux);
 }
 
 
