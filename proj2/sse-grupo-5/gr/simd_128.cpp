@@ -159,7 +159,7 @@ void sse128_smoothing_unroll2(float *x, float *y, float *res, int len)
 		{
 			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
 			cache = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj));
-			cache_1 = _mm_sub_ps(_mm_load_ps1(xi+4), _mm_load_ps(xj+4));
+			cache_1 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+4));
 			exponential = _mm_exp_ps(
 					_mm_mul_ps(
 						_mm_sub_ps(_mm_setzero_ps(),
@@ -222,8 +222,8 @@ void sse128_smoothing_unroll3(float *x, float *y, float *res, int len)
 		{
 			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
 			cache = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj));
-			cache_1 = _mm_sub_ps(_mm_load_ps1(xi+4), _mm_load_ps(xj+4));
-			cache_2 = _mm_sub_ps(_mm_load_ps1(xi+8), _mm_load_ps(xj+8));
+			cache_1 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+4));
+			cache_2 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+8));
 			exponential = _mm_exp_ps(
 					_mm_mul_ps(
 						_mm_sub_ps(_mm_setzero_ps(),
@@ -303,9 +303,9 @@ void sse128_smoothing_unroll4(float *x, float *y, float *res, int len)
 		{
 			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
 			cache = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj));
-			cache_1 = _mm_sub_ps(_mm_load_ps1(xi+4), _mm_load_ps(xj+4));
-			cache_2 = _mm_sub_ps(_mm_load_ps1(xi+8), _mm_load_ps(xj+8));
-			cache_3 = _mm_sub_ps(_mm_load_ps1(xi+12), _mm_load_ps(xj+12));
+			cache_1 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+4));
+			cache_2 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+8));
+			cache_3 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+12));
 			exponential = _mm_exp_ps(
 					_mm_mul_ps(
 						_mm_sub_ps(_mm_setzero_ps(),
@@ -408,13 +408,13 @@ void sse128_smoothing_unroll8(float *x, float *y, float *res, int len)
 		{
 			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
 			cache = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj));
-			cache_1 = _mm_sub_ps(_mm_load_ps1(xi+4), _mm_load_ps(xj+4));
-			cache_2 = _mm_sub_ps(_mm_load_ps1(xi+8), _mm_load_ps(xj+8));
-			cache_3 = _mm_sub_ps(_mm_load_ps1(xi+12), _mm_load_ps(xj+12));
-			cache_4 = _mm_sub_ps(_mm_load_ps1(xi+16), _mm_load_ps(xj+16));
-			cache_5 = _mm_sub_ps(_mm_load_ps1(xi+20), _mm_load_ps(xj+20));
-			cache_6 = _mm_sub_ps(_mm_load_ps1(xi+24), _mm_load_ps(xj+24));
-			cache_7 = _mm_sub_ps(_mm_load_ps1(xi+28), _mm_load_ps(xj+28));
+			cache_1 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+4));
+			cache_2 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+8));
+			cache_3 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+12));
+			cache_4 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+16));
+			cache_5 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+20));
+			cache_6 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+24));
+			cache_7 = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj+28));
 
 			exponential = _mm_exp_ps(
 					_mm_mul_ps(

@@ -141,66 +141,69 @@ void sse256_smoothing_simple(float *x, float *y, float *res, int len)
 }
 
 
-//void sse128_smoothing_unroll2(float *x, float *y, float *res, int len)
-//{
-//	float *xi, *xj, *yj;
-//	float aux[4];
-//	float sumAtot, sumBtot;
-//
-//	__m128 sumA, sumB, sumA_1, sumB_1;
-//	__m128 divisor = _mm_div_ps(_mm_set_ps1(1.0), _mm_set_ps1(2*_SMOOTH*_SMOOTH));
-//	__m128 exponential, exponential_1;
-//	__m128 cache, cache_1;
-//
-//	for(xi=x; xi < x+len; xi++, res++)
-//	{
-//		sumA = sumB = _mm_setzero_ps();
-//		sumA_1 = sumB_1 = _mm_setzero_ps();
-//
-//		for(xj=x, yj=y; xj < x+len; xj+=8, yj+=8)
-//		{
-//			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
-//			cache = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj));
-//			cache_1 = _mm_sub_ps(_mm_load_ps1(xi+4), _mm_load_ps(xj+4));
-//			exponential = _mm_exp_ps(
-//					_mm_mul_ps(
-//						_mm_sub_ps(_mm_setzero_ps(),
-//							_mm_mul_ps(
-//								cache,
-//								cache
-//								)), divisor));
-//
-//			sumB = _mm_add_ps(sumB, exponential);
-//			sumA = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj), exponential));
-//
-//
-//
-//			exponential_1 = _mm_exp_ps(
-//					_mm_mul_ps(
-//						_mm_sub_ps(_mm_setzero_ps(),
-//							_mm_mul_ps(
-//								cache_1,
-//								cache_1
-//								)), divisor));
-//
-//			sumB_1 = _mm_add_ps(sumB_1, exponential_1);
-//			sumA_1 = _mm_add_ps(sumA_1, _mm_mul_ps(_mm_load_ps(yj+4), exponential_1));
-//		}
-//
-//		sumA = _mm_add_ps(sumA, sumA_1);
-//		sumB = _mm_add_ps(sumB, sumB_1);
-//
-//		// horizontaly add sumA and sumB
-//		_mm_store_ps(aux, _mm_hadd_ps(_mm_hadd_ps(sumA, sumB), _mm_setzero_ps()));
-//
-//		sumAtot = aux[0];
-//		sumBtot = aux[1];
-//
-//		*res = sumAtot/sumBtot;
-//	}
-//}
-//
-//
+void sse256_smoothing_unroll2(float *x, float *y, float *res, int len)
+{
+	float *xi, *xj, *yj;
+	float *aux = (float*) aligned_malloc(8*sizeof(float));
+	float sumAtot, sumBtot, s = 2*_SMOOTH*_SMOOTH;
+
+	__m256 divisor = _mm256_div_ps(_mm256_set_ps(1,1,1,1,1,1,1,1), _mm256_broadcast_ss(&s));
+	__m256 sumA, sumB, sumA_1, sumB_1;
+	__m256 exponential, exponential_1;
+	__m256 cache, cache_1;
+
+	for(xi=x; xi < x+len; xi++, res++)
+	{
+		sumA = sumB = _mm256_setzero_ps();
+		sumA_1 = sumB_1 = _mm256_setzero_ps();
+
+		for(xj=x, yj=y; xj < x+len; xj+=16, yj+=16)
+		{
+			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
+			cache = _mm256_sub_ps(_mm256_broadcast_ss(xi), _mm256_load_ps(xj));
+			cache_1 = _mm256_sub_ps(_mm256_broadcast_ss(xi), _mm256_load_ps(xj+8));
+
+			exponential = _mm256_exp_ps(
+					_mm256_mul_ps(
+						_mm256_sub_ps(_mm256_setzero_ps(),
+							_mm256_mul_ps(
+								cache,
+								cache
+								)), divisor));
+
+			sumB = _mm256_add_ps(sumB, exponential);
+			sumA = _mm256_add_ps(sumA, _mm256_mul_ps(_mm256_load_ps(yj), exponential));
+
+
+			exponential_1 = _mm256_exp_ps(
+					_mm256_mul_ps(
+						_mm256_sub_ps(_mm256_setzero_ps(),
+							_mm256_mul_ps(
+								cache_1,
+								cache_1
+								)), divisor));
+
+			sumB_1 = _mm256_add_ps(sumB_1, exponential);
+			sumA_1 = _mm256_add_ps(sumA_1, _mm256_mul_ps(_mm256_load_ps(yj+8), exponential_1));
+		}
+		
+		sumA = _mm256_add_ps(sumA, sumA_1);
+		sumB = _mm256_add_ps(sumB, sumB_1);
+
+		// horizontaly add sumA and sumB
+		_mm256_store_ps(aux, sumA);
+		sumAtot = aux[0] + aux[1] + aux[2] + aux[3] + aux[4] + aux[5] + aux[6] + aux[7];
+
+		_mm256_store_ps(aux, sumB);
+		sumBtot = aux[0] + aux[1] + aux[2] + aux[3] + aux[4] + aux[5] + aux[6] + aux[7];
+
+		*res = sumAtot/sumBtot;
+	}
+
+	aligned_free(aux);
+}
+
+
 //void sse128_smoothing_unroll3(float *x, float *y, float *res, int len)
 //{
 //	float *xi, *xj, *yj;
@@ -590,20 +593,20 @@ void smoothing_speedup(long long len,long long iters, double *timeVector){
 	write_results(name,x,y,res,len);
 
 
-//	/* WARM UP CACHE FOR SSE128 unroll2 CASE */
-//	sse128_smoothing_unroll2(x,y,res,len);
-//
-//	/* COMPUTE AVERAGE TIME FOR SSE128 unroll2 CASE */
-//	tStart = PAPI_get_real_usec();
-//	for (i=0; i<iters; i++)
-//		sse128_smoothing_unroll2(x,y,res,len);
-//	tEnd = PAPI_get_real_usec();
-//	timeVector[2] = ((double)(tEnd - tStart)) / iters;
-//
-//	sprintf(name,"128_unroll2_%llu.csv",len);
-//	write_results(name,x,y,res,len);
-//	
-//
+	/* WARM UP CACHE FOR SSE256 unroll2 CASE */
+	sse256_smoothing_unroll2(x,y,res,len);
+
+	/* COMPUTE AVERAGE TIME FOR SSE256 unroll2 CASE */
+	tStart = PAPI_get_real_usec();
+	for (i=0; i<iters; i++)
+		sse256_smoothing_unroll2(x,y,res,len);
+	tEnd = PAPI_get_real_usec();
+	timeVector[2] = ((double)(tEnd - tStart)) / iters;
+
+	sprintf(name,"256_unroll2_%llu.csv",len);
+	write_results(name,x,y,res,len);
+	
+
 //	/* WARM UP CACHE FOR SSE128 unroll3 CASE */
 //	sse128_smoothing_unroll3(x,y,res,len);
 //
