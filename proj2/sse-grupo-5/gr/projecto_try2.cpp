@@ -126,11 +126,11 @@ void sse128_smoothing(float *x, float *y, float *res, int len)
 			sumB = _mm_add_ps(sumB, exponential);
 		}
 
-		_mm_store_ps(aux, sumA); 
-		sumAtot = aux[0] + aux[1] + aux[2] + aux[3];
+		// horizontaly add sumA and sumB
+		_mm_store_ps(aux, _mm_hadd_ps(_mm_hadd_ps(sumA, sumB), _mm_setzero_ps()));
 
-		_mm_store_ps(aux, sumB); 
-		sumBtot = aux[0] + aux[1] + aux[2] + aux[3];
+		sumAtot = aux[0];
+		sumBtot = aux[1];
 
 		*res = sumAtot/sumBtot;
 	}
