@@ -95,7 +95,49 @@ void normal_smoothing(float*x,float*y,float*res,int len){
 }
 
 
-void sse128_smoothing(float *x, float *y, float *res, int len)
+void sse128_smoothing_simple(float *x, float *y, float *res, int len)
+{
+	float *xi, *xj, *yj;
+	float aux[4];
+	float sumAtot, sumBtot;
+
+	__m128 sumA, sumB;
+	__m128 divisor = _mm_div_ps(_mm_set_ps1(1.0), _mm_set_ps1(2*_SMOOTH*_SMOOTH));
+	__m128 exponential;
+	__m128 cache;
+
+	for(xi=x; xi < x+len; xi++, res++)
+	{
+		sumA = sumB = _mm_setzero_ps();
+
+		for(xj=x, yj=y; xj < x+len; xj+=4, yj+=4)
+		{
+			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
+			cache = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj));
+			exponential = _mm_exp_ps(
+					_mm_mul_ps(
+						_mm_sub_ps(_mm_setzero_ps(),
+							_mm_mul_ps(
+								cache,
+								cache
+								)), divisor));
+
+			sumB = _mm_add_ps(sumB, exponential);
+			sumA = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj), exponential));
+		}
+
+		// horizontaly add sumA and sumB
+		_mm_store_ps(aux, _mm_hadd_ps(_mm_hadd_ps(sumA, sumB), _mm_setzero_ps()));
+
+		sumAtot = aux[0];
+		sumBtot = aux[1];
+
+		*res = sumAtot/sumBtot;
+	}
+}
+
+
+void sse128_smoothing_unroll2(float *x, float *y, float *res, int len)
 {
 	float *xi, *xj, *yj;
 	float aux[4];
@@ -178,24 +220,37 @@ void smoothing_speedup(long long len,long long iters, double *timeVector){
 	for (i=0; i<iters; i++)
 		normal_smoothing(x,y,res,len);
 	tEnd = PAPI_get_real_usec();
-	timeVector[0] = ((double)(tEnd - tStart))*1000 / iters;
+	timeVector[0] = ((double)(tEnd - tStart)) / iters;
 
 	sprintf(name,"normal_%llu.csv",len);
 	write_results(name,x,y,res,len);
 	
 
-	/* WARM UP CACHE FOR SSE128 CASE */
-	sse128_smoothing(x,y,res,len);
+	/* WARM UP CACHE FOR SSE128 simple CASE */
+	sse128_smoothing_simple(x,y,res,len);
 
-	/* COMPUTE AVERAGE TIME FOR SSE128 CASE */
+	/* COMPUTE AVERAGE TIME FOR SSE128 simple CASE */
 	tStart = PAPI_get_real_usec();
 	for (i=0; i<iters; i++)
-		sse128_smoothing(x,y,res,len);
+		sse128_smoothing_simple(x,y,res,len);
 	tEnd = PAPI_get_real_usec();
-	timeVector[1] = ((double)(tEnd - tStart))*1000 / iters;
+	timeVector[1] = ((double)(tEnd - tStart)) / iters;
+
+	sprintf(name,"128_simple_%llu.csv",len);
+	write_results(name,x,y,res,len);
 
 
-	sprintf(name,"128_%llu.csv",len);
+	/* WARM UP CACHE FOR SSE128 unroll2 CASE */
+	sse128_smoothing_unroll2(x,y,res,len);
+
+	/* COMPUTE AVERAGE TIME FOR SSE128 unroll2 CASE */
+	tStart = PAPI_get_real_usec();
+	for (i=0; i<iters; i++)
+		sse128_smoothing_unroll2(x,y,res,len);
+	tEnd = PAPI_get_real_usec();
+	timeVector[2] = ((double)(tEnd - tStart)) / iters;
+
+	sprintf(name,"128_unroll2_%llu.csv",len);
 	write_results(name,x,y,res,len);
 	
 	/* FREE ALLOCATED MEMORY */
@@ -222,16 +277,17 @@ int main(void) {
 	srand(time(NULL));
 
 	
-	printf("========================================================\n");
-	printf("   COMPUTING SMOOTHING SPEED-UP\n");
- 	printf("========================================================\n");
-	printf("| Vector Length | Original Time [us] | SSE-128 speedup |\n");
-	printf("+---------------+--------------------+-----------------+\n");
+	printf("==========================================================================\n");
+	printf("   COMPUTING SMOOTHING SPEEDUP for SSE-128\n");
+ 	printf("==========================================================================\n");
+	printf("| Vector |   Original |   speedup   |   speedup   |\n");
+	printf("| Length |  Time [us] |    simple   | unrolling 2 |\n");
+	printf("+--------+------------+-------------+-------------+\n");
 	for (i=4;i<14; i++){
 		smoothing_speedup(1<<i, 5, timeVector);
-		printf("|   %10d  |   %16.3f |    %9.6f    |\n", 1<<i, timeVector[0], timeVector[0]/timeVector[1]);
+		printf("|  %5d | %10.1f | %11.6f | %11.6f |\n", 1<<i, timeVector[0], timeVector[0]/timeVector[1], timeVector[0]/timeVector[2]);
 	}
-	printf("+---------------+--------------------+-----------------+\n\n");
+	printf("+--------+------------+-------------+-------------+\n\n");
 
 
 	printf("Shuting down PAPI library...\n\n");
