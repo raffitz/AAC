@@ -102,7 +102,7 @@ void sse128_smoothing(float *x, float *y, float *res, int len)
 	float sumAtot, sumBtot;
 
 	__m128 sumA, sumB, sumA_1, sumB_1;
-	__m128 divisor = _mm_set_ps1(2*_SMOOTH*_SMOOTH);
+	__m128 divisor = _mm_div_ps(_mm_set_ps1(1.0), _mm_set_ps1(2*_SMOOTH*_SMOOTH));
 	__m128 exponential, exponential_1;
 	__m128 cache, cache_1;
 
@@ -117,28 +117,28 @@ void sse128_smoothing(float *x, float *y, float *res, int len)
 			cache = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj));
 			cache_1 = _mm_sub_ps(_mm_load_ps1(xi+4), _mm_load_ps(xj+4));
 			exponential = _mm_exp_ps(
-					_mm_div_ps(
+					_mm_mul_ps(
 						_mm_sub_ps(_mm_setzero_ps(),
 							_mm_mul_ps(
 								cache,
 								cache
 								)), divisor));
 
-			sumA = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj), exponential));
 			sumB = _mm_add_ps(sumB, exponential);
+			sumA = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj), exponential));
 
 
 
 			exponential_1 = _mm_exp_ps(
-					_mm_div_ps(
+					_mm_mul_ps(
 						_mm_sub_ps(_mm_setzero_ps(),
 							_mm_mul_ps(
 								cache_1,
 								cache_1
 								)), divisor));
 
-			sumA_1 = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj+4), exponential_1));
 			sumB_1 = _mm_add_ps(sumB, exponential_1);
+			sumA_1 = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj+4), exponential_1));
 		}
 
 		sumA = _mm_add_ps(sumA, sumA_1);
