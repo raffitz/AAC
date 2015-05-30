@@ -667,7 +667,7 @@ int main(void) {
 
 	
 	puts("=============================================================================================");
-	puts("   COMPUTING SMOOTHING SPEEDUP for SSE-128\n");
+	puts("   COMPUTING SMOOTHING SPEEDUP for SSE-128");
  	puts("=============================================================================================");
 	puts("| Vector |   Original |   speedup   |   speedup   |   speedup   |   speedup   |   speedup   |");
 	puts("| Length |  Time [us] |    simple   | unrolling 2 | unrolling 3 | unrolling 4 | unrolling 8 |");
