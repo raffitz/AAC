@@ -1,5 +1,5 @@
 
-SOURCE = projecto_try2.cpp
+SOURCE = simd_128.cpp
 TARGET = sse5
 
 $(TARGET): $(SOURCE)
