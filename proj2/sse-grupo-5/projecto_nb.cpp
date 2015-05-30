@@ -119,7 +119,7 @@ void sse128_smoothing(float *x,float *y,float *res, int len) {
 		vx1 = _mm_load_ps(auxx1);
 		va = vb = _mm_setzero_ps();
 
-		for(j=0;j<len;j+=4){
+		for(j=0;j<len;j++){
 			factor = _mm_sub_ps(vx1,_mm_set_ps1(x[j]));
 			factor = _mm_mul_ps(factor,factor);
 			factor = _mm_div_ps(factor,smooth);
@@ -163,7 +163,7 @@ void sse256_smoothing(float *x,float *y,float *res, int len) {
 		// load (aligned) packed single precision floating point
 		vx1      = _mm256_load_ps(auxx1);
 		va = vb = _mm256_setzero_ps();
-		for(j=0;j<len;j+=4){
+		for(j=0;j<len;j++){
 			vx2 = _mm256_set_ps(x[j],x[j],x[j],x[j],x[j],x[j],x[j],x[j]);
 			vy = _mm256_set_ps(y[j],y[j],y[j],y[j],y[j],y[j],y[j],y[j]);
 			factor = _mm256_sub_ps(vx1,vx2);
