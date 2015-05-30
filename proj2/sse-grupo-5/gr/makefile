@@ -1,6 +1,7 @@
 
 SOURCE = projecto_try2.cpp
+TARGET = sse5
 
-sse5: $(SOURCE)
+$(TARGET): $(SOURCE)
 	#initicc
 	icc $(SOURCE) -o $@ -O0 -lpapi -g

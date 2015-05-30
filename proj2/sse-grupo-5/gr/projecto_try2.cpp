@@ -97,34 +97,49 @@ void normal_smoothing(float*x,float*y,float*res,int len){
 
 void sse128_smoothing(float *x, float *y, float *res, int len)
 {
-	__m128 sumA, sumB;
 	float *xi, *xj, *yj;
 	float aux[4];
 	float sumAtot, sumBtot;
 
+	__m128 sumA, sumB, sumA_1, sumB_1;
 	__m128 divisor = _mm_set_ps1(2*_SMOOTH*_SMOOTH);
-	__m128 dividend;
-	__m128 quotient;
-	__m128 exponential;
+	__m128 exponential, exponential_1;
 
 	for(xi=x; xi < x+len; xi++, res++)
 	{
 		sumA = sumB = _mm_setzero_ps();
+		sumA_1 = sumB_1 = _mm_setzero_ps();
 
-		for(xj=x, yj=y; xj < x+len; xj+=4, yj+=4)
+		for(xj=x, yj=y; xj < x+len; xj+=8, yj+=8)
 		{
 			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
-			dividend = _mm_sub_ps(_mm_setzero_ps(),
-						_mm_mul_ps(
-							_mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj)),
-							_mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj))
-							));
-
-			exponential = _mm_exp_ps(_mm_div_ps(dividend, divisor));
+			exponential = _mm_exp_ps(
+					_mm_div_ps(
+						_mm_sub_ps(_mm_setzero_ps(),
+							_mm_mul_ps(
+								_mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj)),
+								_mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj))
+								)), divisor));
 
 			sumA = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj), exponential));
 			sumB = _mm_add_ps(sumB, exponential);
+
+
+
+			exponential_1 = _mm_exp_ps(
+					_mm_div_ps(
+						_mm_sub_ps(_mm_setzero_ps(),
+							_mm_mul_ps(
+								_mm_sub_ps(_mm_load_ps1(xi+4), _mm_load_ps(xj+4)),
+								_mm_sub_ps(_mm_load_ps1(xi+4), _mm_load_ps(xj+4))
+								)), divisor));
+
+			sumA_1 = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj+4), exponential_1));
+			sumB_1 = _mm_add_ps(sumB, exponential_1);
 		}
+
+		sumA = _mm_add_ps(sumA, sumA_1);
+		sumB = _mm_add_ps(sumB, sumB_1);
 
 		// horizontaly add sumA and sumB
 		_mm_store_ps(aux, _mm_hadd_ps(_mm_hadd_ps(sumA, sumB), _mm_setzero_ps()));
@@ -216,14 +231,14 @@ void smoothing_speedup(long long len,long long iters, double *timeVector){
 	sse256_smoothing(x,y,res,len);
 
 	/* COMPUTE AVERAGE TIME FOR SSE256 CASE */
-	tStart = PAPI_get_real_usec();
-	for (i=0; i<iters; i++)
-		sse256_smoothing(x,y,res,len);
-	tEnd = PAPI_get_real_usec();
-	timeVector[2] = ((double)(tEnd - tStart))*1000 / iters;
-
-	sprintf(name,"256_%llu.csv",len);
-	write_results(name,x,y,res,len);
+//	tStart = PAPI_get_real_usec();
+//	for (i=0; i<iters; i++)
+//		sse256_smoothing(x,y,res,len);
+//	tEnd = PAPI_get_real_usec();
+//	timeVector[2] = ((double)(tEnd - tStart))*1000 / iters;
+//
+//	sprintf(name,"256_%llu.csv",len);
+//	write_results(name,x,y,res,len);
 	
 	/* FREE ALLOCATED MEMORY */
 	aligned_free(x);
