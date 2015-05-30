@@ -155,36 +155,64 @@ void sse128_smoothing(float *x, float *y, float *res, int len)
 }
 
 
-// no changes here
-void sse256_smoothing(float *x,float *y,float *res, int len) {
-	int i,j;
-	__m256 vx1,vx2,vy,va,vb,vres,factor;
-	float s = 2*_SMOOTH*_SMOOTH;
-	__m256 smooth= _mm256_set_ps(s,s,s,s,s,s,s,s);
-	float *auxx1,*auxx2,*auxy,*auxres;
+//void sse256_smoothing(float *x,float *y,float *res, int len)
+//{
+//	float *xi, *xj, *yj;
+//	float aux[4];
+//	float sumAtot, sumBtot;
+//
+//	__m256 sumA, sumB, sumA_1, sumB_1;
+//	//__m256 divisor = _mm256_div_ps(_mm256_set_ps1(1.0), _mm256_set_ps1(2*_SMOOTH*_SMOOTH));
+//	__m256 exponential, exponential_1;
+//	__m256 cache, cache_1;
 
-	
-	
-	for (i=0,auxx1 = x,auxres=res; i<(len>>3); i++,auxx1+=8,auxres+=8) {
-		// load (aligned) packed single precision floating point
-		vx1      = _mm256_load_ps(auxx1);
-		va = vb = _mm256_setzero_ps();
-		for(j=0,auxx2 = x,auxy = y;j<(len>>3);j++,auxx2+=8,auxy+=8){
-			vx2 = _mm256_load_ps(auxx2);
-			vy = _mm256_load_ps(auxy);
-			factor = _mm256_sub_ps(vx1,vx2);
-			factor = _mm256_mul_ps(factor,factor);
-			factor = _mm256_sub_ps(_mm256_setzero_ps(),factor);
-			factor = _mm256_div_ps(factor,smooth);
-			factor = _mm256_exp_ps(factor);
-			va = _mm256_add_ps(va,_mm256_mul_ps(factor,vy));
-			vb = _mm256_add_ps(vb,factor);
-		}
-		vres = _mm256_div_ps(va,vb);
-
-		_mm256_store_ps(auxres,vres);
-	}
-}
+//	for(xi=x; xi < x+len; xi++, res++)
+//	{
+//		sumA = sumB = _mm_setzero_ps();
+//		sumA_1 = sumB_1 = _mm_setzero_ps();
+//
+//		for(xj=x, yj=y; xj < x+len; xj+=8, yj+=8)
+//		{
+//			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
+//			cache = _mm_sub_ps(_mm_load_ps1(xi), _mm_load_ps(xj));
+//			cache_1 = _mm_sub_ps(_mm_load_ps1(xi+4), _mm_load_ps(xj+4));
+//			exponential = _mm_exp_ps(
+//					_mm_mul_ps(
+//						_mm_sub_ps(_mm_setzero_ps(),
+//							_mm_mul_ps(
+//								cache,
+//								cache
+//								)), divisor));
+//
+//			sumB = _mm_add_ps(sumB, exponential);
+//			sumA = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj), exponential));
+//
+//
+//
+//			exponential_1 = _mm_exp_ps(
+//					_mm_mul_ps(
+//						_mm_sub_ps(_mm_setzero_ps(),
+//							_mm_mul_ps(
+//								cache_1,
+//								cache_1
+//								)), divisor));
+//
+//			sumB_1 = _mm_add_ps(sumB, exponential_1);
+//			sumA_1 = _mm_add_ps(sumA, _mm_mul_ps(_mm_load_ps(yj+4), exponential_1));
+//		}
+//
+//		sumA = _mm_add_ps(sumA, sumA_1);
+//		sumB = _mm_add_ps(sumB, sumB_1);
+//
+//		// horizontaly add sumA and sumB
+//		_mm_store_ps(aux, _mm_hadd_ps(_mm_hadd_ps(sumA, sumB), _mm_setzero_ps()));
+//
+//		sumAtot = aux[0];
+//		sumBtot = aux[1];
+//
+//		*res = sumAtot/sumBtot;
+//	}
+//}
 
 
 void smoothing_speedup(long long len,long long iters, double *timeVector){
@@ -231,9 +259,9 @@ void smoothing_speedup(long long len,long long iters, double *timeVector){
 	write_results(name,x,y,res,len);
 	
 	/* WARM UP CACHE FOR SSE256 CASE */
-	sse256_smoothing(x,y,res,len);
-
-	/* COMPUTE AVERAGE TIME FOR SSE256 CASE */
+//	sse256_smoothing(x,y,res,len);
+//
+//	/* COMPUTE AVERAGE TIME FOR SSE256 CASE */
 //	tStart = PAPI_get_real_usec();
 //	for (i=0; i<iters; i++)
 //		sse256_smoothing(x,y,res,len);
