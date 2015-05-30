@@ -1,4 +1,5 @@
-#Scoreboard
+== Scoreboard
+
 
 =============================================================================================
    COMPUTING SMOOTHING SPEEDUP for SSE-128
