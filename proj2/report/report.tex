@@ -219,7 +219,7 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len) {
 
 	Na \autoref{tab:results_256} apresentam-se os resultados obtidos quando usadas instruções vectoriais de 256 bits. 
 
-        Estes resultados parecem surpreendentemente baixos face ao esperado. Como tal, foi utilizado o GNU Debugger (\texttt{gdb}) para fazer o \textit{disassemble} do programa, de maneira a tentar descobrir operações responsáveis pela quebra de performance.
+        Estes resultados parecem surpreendentemente baixos face ao esperado. Como tal, foi utilizado o GNU Debugger (\texttt{gdb}) para fazer o \textit{disassemble} do programa, de maneira a tentar descobrir operações responsáveis pela quebra de performance. Esta investigação, porém, não levou a conclusões viáveis.
 	
 	
 	\begin{table}[h]
