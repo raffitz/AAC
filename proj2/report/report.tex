@@ -213,30 +213,32 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len) {
 	\end{table}
 
 
-	Na \autoref{tab:results_256} apresentam-se os resultados obtidos quando usadas instruções vectoriais de 256 bits.
+	Na \autoref{tab:results_256} apresentam-se os resultados obtidos quando usadas instruções vectoriais de 256 bits. 
+
+        Estes resultados parecem surpreendentemente baixos face ao esperado. Como tal, foi utilizado o GNU Debugger (\texttt{gdb}) para fazer o \textit{disassemble} do programa, de maneira a tentar descobrir operações responsáveis pela quebra de performance.
 	
 	
 	\begin{table}[h]
 	\caption{Resultados para extensões multimédia de 256 bits}
 	\label{tab:results_256}
 	\begin{Verbatim}[fontsize=\small,xleftmargin=7mm]
-===============================================================================
+=============================================================================================
    COMPUTING SMOOTHING SPEEDUP for SSE-256
-===============================================================================
-| Vector |   Original |   speedup   |   speedup   |   speedup   |   speedup   |
-| Length |  Time [us] |    simple   | unrolling 2 | unrolling 4 | unrolling 8 |
-+--------+------------+-------------+-------------+-------------+-------------+
-|     16 |        4.6 |    0.489362 |    0.500000 |    0.230000 |    0.129213 |
-|     32 |       58.4 |    2.413223 |    2.474576 |    2.433333 |    1.221757 |
-|     64 |      237.8 |    3.339888 |    3.436416 |    3.406877 |    2.921376 |
-|    128 |      308.6 |    3.946292 |    2.726148 |    2.377504 |    2.201141 |
-|    256 |     1316.4 |    4.725054 |    4.922962 |    4.952596 |    5.178600 |
-|    512 |     4859.0 |    4.836751 |    5.087958 |    4.876556 |    5.149428 |
-|   1024 |    21204.4 |    2.220496 |    2.289348 |    2.305728 |    2.314183 |
-|   2048 |    93763.0 |    2.067596 |    2.169375 |    2.190724 |    2.182342 |
-|   4096 |   406793.0 |    2.153440 |    2.268620 |    2.275335 |    2.230049 |
-|   8192 |  1623771.6 |    2.116458 |    2.237501 |    2.279346 |    2.264126 |
-+--------+------------+-------------+-------------+-------------+-------------+
+=============================================================================================
+| Vector |   Original |   speedup   |   speedup   |   speedup   |   speedup   |   speedup   |
+| Length |  Time [us] |    simple   | unrolling 2 | unrolling 3 | unrolling 4 | unrolling 8 |
++--------+------------+-------------+-------------+-------------+-------------+-------------+
+|     16 |        4.6 |    0.489362 |    0.500000 |    0.264368 |    0.230000 |    0.131429 |
+|     32 |       62.0 |    2.279412 |    2.605042 |    1.890244 |    2.924528 |    1.319149 |
+|     64 |      233.0 |    2.971939 |    3.509036 |    2.807229 |    3.290960 |    3.319088 |
+|    128 |      439.4 |    5.604592 |    5.890080 |    3.736395 |    4.605870 |    4.359127 |
+|    256 |     2103.6 |    7.412262 |    8.448193 |    7.980273 |    8.475423 |    8.294953 |
+|    512 |     4683.6 |    4.677986 |    5.040465 |    4.554259 |    5.021012 |    4.941549 |
+|   1024 |    21110.8 |    2.220740 |    2.307797 |    2.268369 |    2.323238 |    2.320021 |
+|   2048 |    93581.2 |    2.080155 |    2.168701 |    2.153688 |    2.198207 |    2.187356 |
+|   4096 |   407518.2 |    2.163882 |    2.269379 |    2.283686 |    2.309500 |    2.280649 |
+|   8192 |  1634150.0 |    2.135391 |    2.252925 |    2.278696 |    2.305896 |    2.272658 |
++--------+------------+-------------+-------------+-------------+-------------+-------------+
 	\end{Verbatim}
 	\end{table}
 
@@ -249,7 +251,7 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len) {
 	  Intel strongly advises against mixing SSE 128-bit instructions and AVX 256-bit instructions, as this ``mode-switching'' can cost upwards of 70 clock cycles. However, mixing SSE 128-bit and AVX 128-bit is okay, as is mixing AVX 128-bit and AVX 256-bit.
 	 \end{quote}
 	   
-	
+
 	
 	\section{Conclusão}
 
