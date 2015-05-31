@@ -183,7 +183,7 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len) {
 	
 	\section{Resultados} 
 	
-	Para comparar os resultados das várias soluções foram calculados \textit{speedups} que usam como base de comparação os resultados da função \texttt{sse128\_smoothing\_simple()}, descrita em \ref{sec:implementations}. Nas tabelas de resultados a coluna ``vector length" refere-se ao número de amostras da função sobre a qual se está a fazer o \textit{smoothing}. A coluna ``original time" representa o tempo que a função \texttt{smoothing\_normal()} demorou a ser executada.
+	Para comparar os resultados das várias soluções foram calculados \textit{speedups} que usam como base de comparação os resultados da função \texttt{sse128\_smoothing\_simple()}, descrita em \ref{sec:implementations}. Nas tabelas de resultados a coluna ``vector length" refere-se ao número de amostras da função sobre a qual se está a fazer o \textit{smoothing}. A coluna ``original time" representa o tempo que a função \texttt{normal\_smoothing()} demorou a ser executada.
 	
 	Para instruções vectoriais de 128 bits o \textit{speedup} teórico é de 4 vezes, visto que são feitas operações sobre quatro \texttt{float}s de cada vez, em vez de apenas um. Como se pode verificar pela \autoref{tab:results_128} com a solução simples conseguiu-se um \textit{speedup} de cerca de 3.1 vezes, que representa 77\% do máximo teórico. Com \textit{unrolling} de 2 conseguiu-se ficar a 92\% do valor máximo e com \textit{unrolling} de 4 atingiu-se 99\% desse valor. Para \textit{unrolling} de 8 previa-se uma queda de desempenho (como explicado em \ref{subsec:implementation_unrolling}), o que não aconteceu, tendo-se mesmo passado o \textit{speedup} teórico máximo em consistentemente em vários testes.
 	
