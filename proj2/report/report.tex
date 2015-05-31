@@ -6,6 +6,7 @@
 \usepackage[hypcap]{caption} % makes \ref point to top of figures and tables
 \usepackage{rotating}
 \usepackage{multirow}
+\usepackage{indentfirst} % indent first paragraph in section
 \usepackage{geometry}
 \usepackage{fancyvrb}
 
@@ -45,7 +46,12 @@
 	\trMakeCover
 	
 	\tableofcontents
+	\pagenumbering{gobble}
 	\pagebreak
+	\pagenumbering{arabic}
+	\setcounter{page}{1}
+	
+	
 	
 	\section{Introdução}
 	
@@ -67,7 +73,7 @@
 		\label{eq:smoothing_function}
 	\end{equation}
 	
-	Onde
+	onde
 	
 	\begin{equation}
 		K_b (x_i,x_k)=exp\left(-\frac{(x-x_k)^2}{2b^2} \right)
@@ -79,6 +85,7 @@
 	
 	
 	\section{Aceleração e Paralelização}
+	\label{sec:implementations}
 	
 	Para realizar a aceleração do programa foram adoptadas várias estratégias: usando instruções de processamento vectorial de 128 bits e usando instruções de processamento vectorial de 128 bits com \textit{unrolling} do ciclo de computação em 2, 3, 4 e 8 cálculos por ciclo.
 	
@@ -163,19 +170,26 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len) {
 
 	
 	\subsection{\texttt{smoothing\_unroll*()}}
+	\label{subsec:implementation_unrolling}
 	
-	Para tentar acelerar ainda mais o algoritmo desenvolvido, foi testado a execução de \textit{unrolling} no ciclo de computação. Nesse sentido foram testados 4 casos de \textit{unrolling}: 2, 3, 4 e 8 instruções por ciclo, sendo que se pode concluir que o aumento de instruções por ciclo tende a aumentar ligeiramente o speedup obtido.
+	Para tentar conseguir uma aceleração superior à conseguida com \texttt{smoothing\_simple()} foram implementadas versões que usam \textit{unrolling} do ciclo interno. Foram testados 4 casos de \textit{unrolling}: 2, 3, 4 e 8 instruções por ciclo, sendo que como se pode constatar pela \autoref{tab:results_128} teve-se sucesso em aumentar o \textit{speedup}.
+	
+	O \textit{unrolling} máximo que é possível é limitado pelo número de registos disponíveis. Tendo em conta que o processador usado (i7-3820) é um processador de 64 bits e que suporta AVX, deverão existir 16 registos vectorias (YMM0 -- YMM15). Calcula-se que com \textit{unrolling} de 4 todos os registos já estariam utilizados, pelo que se esperava que com \textit{unrolling} de 8 os resultados fossem piores do que com 4. Pela \autoref{tab:results_128} ao contrário do esperado o \textit{unrolling} de 8 conseguiu ainda ser superior ao de 4, se bem que apenas em 2\% no máximo. Para explicar este fenómeno deveria ser analisado o \textit{assembly} produzido para verificar a utilização dos registos. É possível também que este comportamento se deve a efeitos introduzidos pela cache.
 	
 	
-	\section{Testes} 
-		
-	Para testar a aceleração do nosso programa foram comparados os tempos de execução do algoritmo 1 com os programas desenvolvidos pelo grupo para acelerar o algoritmo 1. A tabela seguinta demonstra o tempo de execução do algoritmo 1 (Tempo Original) e os \textit{speedups} encontrados para diferentes tamanhos de vectores (entre 16 e 16384 \textit{floats}) para as várias estratégias desenvolvidas:
+	\section{Resultados} 
+	
+	Para comparar os resultados das várias soluções foram calculados \textit{speedups} que usam como base de comparação os resultados da função \texttt{sse128\_smoothing\_simple()}, descrita em \ref{sec:implementations}. Nas tabelas de resultados a coluna ``vector length" refere-se ao número de amostras da função sobre a qual se está a fazer o \textit{smoothing}. A coluna ``original time" representa o tempo que a função \texttt{sse128\_smoothing\_simple()} demorou a ser executada.
+	
+	Para instruções vectoriais de 128 bits o \textit{speedup} teórico é de 4 vezes, visto que são feitas operações sobre quatro \texttt{float}s de cada vez, em vez de apenas um. Como se pode verificar pela \autoref{tab:results_128} com a solução simples conseguiu-se um \textit{speedup} de cerca de 3.1 vezes, que representa 77\% do máximo teórico. Com \textit{unrolling} de 2 conseguiu-se ficar a 92\% do valor máximo e com \textit{unrolling} de 4 atingiu-se 99\% desse valor. Para \textit{unrolling} de 8 previa-se uma queda de desempenho (como explicado em \ref{subsec:implementation_unrolling}), o que não aconteceu, tendo-se mesmo passado o \textit{speedup} teórico máximo em consistentemente em vários testes.
+	
+	Nota-se que para dados com tamanho 128 e 256 existem vários \textit{speedups} que ultrapassam 4, chegando alguns a 10. Isto é explicado por efeitos introduzidos pela \textit{cache}.
 	
 
-	\begin{table}
+	\begin{table}[h]
 	\caption{Resultados para extensões multimédia de 128 bits}
 	\label{tab:results_128}
-	\begin{Verbatim}[fontsize=\small,xleftmargin=-5mm]
+	\begin{Verbatim}[fontsize=\small,xleftmargin=-3mm]
 =============================================================================================
    COMPUTING SMOOTHING SPEEDUP for SSE-128
 =============================================================================================
@@ -199,12 +213,42 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len) {
 	\end{table}
 
 
+	Na \autoref{tab:results_256} apresentam-se os resultados obtidos quando usadas instruções vectoriais de 256 bits.
 	
-	\section{Demonstração \textit{vs.} Desenvolvido}
 	
-	 Aquando a demonstração, os resultados de speedup obtidos eram muito inferiores ao esperado (estando-se a obter valores de speedup próximos de 1). Contudo, após uma análise mais detalhada sobre o funcionamento de instruções vectoriais, verificou-se que, apesar da não se estar a usar a porção de código correspondente ao uso de instruções de processamento vectorial para 256 bits, o facto de existir esta porção de código fazia com que o compilador agendasse mudanças de modo entre o processamento de 128 bits e o de 256 bits, o que atrasava imenso a execução do programa. Como tal separam-se estas duas componentes de processamento em dois programas distintos. Esta simples mudança fez com que, ao usar as instruções de processamento de 128 bits, se conseguisse atingir resultados de speedup próximos do esperado.
+	\begin{table}[h]
+	\caption{Resultados para extensões multimédia de 256 bits}
+	\label{tab:results_256}
+	\begin{Verbatim}[fontsize=\small,xleftmargin=7mm]
+===============================================================================
+   COMPUTING SMOOTHING SPEEDUP for SSE-256
+===============================================================================
+| Vector |   Original |   speedup   |   speedup   |   speedup   |   speedup   |
+| Length |  Time [us] |    simple   | unrolling 2 | unrolling 4 | unrolling 8 |
++--------+------------+-------------+-------------+-------------+-------------+
+|     16 |        4.6 |    0.489362 |    0.500000 |    0.230000 |    0.129213 |
+|     32 |       58.4 |    2.413223 |    2.474576 |    2.433333 |    1.221757 |
+|     64 |      237.8 |    3.339888 |    3.436416 |    3.406877 |    2.921376 |
+|    128 |      308.6 |    3.946292 |    2.726148 |    2.377504 |    2.201141 |
+|    256 |     1316.4 |    4.725054 |    4.922962 |    4.952596 |    5.178600 |
+|    512 |     4859.0 |    4.836751 |    5.087958 |    4.876556 |    5.149428 |
+|   1024 |    21204.4 |    2.220496 |    2.289348 |    2.305728 |    2.314183 |
+|   2048 |    93763.0 |    2.067596 |    2.169375 |    2.190724 |    2.182342 |
+|   4096 |   406793.0 |    2.153440 |    2.268620 |    2.275335 |    2.230049 |
+|   8192 |  1623771.6 |    2.116458 |    2.237501 |    2.279346 |    2.264126 |
++--------+------------+-------------+-------------+-------------+-------------+
+	\end{Verbatim}
+	\end{table}
+
+	
+	\section{Dificuldades}
+	
+	 Aquando da demonstração, os resultados de \textit{speedup} obtidos eram muito inferiores ao esperado (estando-se a obter valores de speedup próximos de 1). Contudo, após uma análise mais detalhada sobre o funcionamento de instruções vectoriais, verificou-se que, apesar da não se estar a usar a porção de código correspondente ao uso de instruções de processamento vectorial para 256 bits, o facto de existir esta porção de código fazia com que o compilador agendasse mudanças de modo entre o processamento de 128 bits e o de 256 bits, o que atrasava imenso a execução do programa. Como tal separam-se estas duas componentes de processamento em dois programas distintos. Esta simples mudança fez com que, ao usar as instruções de processamento de 128 bits, se conseguisse atingir resultados de \textit{speedup} compatíveis com os esperados. Num site sobre programação de xadrez\footnote{\url{https://chessprogramming.wikispaces.com/AVX}} encontrou-se a seguinte referência a este problema:
+	 
+	 \begin{quote}
+	  Intel strongly advises against mixing SSE 128-bit instructions and AVX 256-bit instructions, as this ``mode-switching'' can cost upwards of 70 clock cycles. However, mixing SSE 128-bit and AVX 128-bit is okay, as is mixing AVX 128-bit and AVX 256-bit.
+	 \end{quote}
 	   
-	
 	
 	
 	\section{Conclusão}
