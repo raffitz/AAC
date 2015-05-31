@@ -190,7 +190,7 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len) {
 	Nota-se que para dados com tamanho 128 e 256 existem vários \textit{speedups} que ultrapassam 4, chegando alguns a 10. Isto é explicado por efeitos introduzidos pela \textit{cache}.
 	
 
-	\begin{table}[h]
+	\begin{table}[H]
 	\caption{Resultados para extensões multimédia de 128 bits}
 	\label{tab:results_128}
 	\begin{Verbatim}[fontsize=\small,xleftmargin=-3mm]
@@ -222,7 +222,7 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len) {
         Estes resultados parecem surpreendentemente baixos face ao esperado. Como tal, foi utilizado o GNU Debugger (\texttt{gdb}) para fazer o \textit{disassemble} do programa, de maneira a tentar descobrir operações responsáveis pela quebra de performance. Esta investigação, porém, não levou a conclusões viáveis.
 	
 	
-	\begin{table}[h]
+	\begin{table}[H]
 	\caption{Resultados para extensões multimédia de 256 bits}
 	\label{tab:results_256}
 	\begin{Verbatim}[fontsize=\small,xleftmargin=-3mm]
@@ -261,7 +261,7 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len) {
 
 	Com esta actividade experimental o grupo conseguiu cumprir o objectivo de acelerar o programa proposto. Através da utilização de instruções de processamento vectorial conseguiu-se filtrar todo o ruído de um sinal, obtendo-se uma função aproximada deste mesmo sinal (\textit{smoothing}).
 	
-	Para tal, foi desenvolvida a utilização de instruções de 128 e 256 bits, sendo que se adoptaram várias estratégias para conseguir esta aceleração sobre o programa original. Os resultados obtidos para a versão de 128 bits encontram-se dentro do esperado (\textit{speedup} próximo de 4), mas, para a versão de 256 bits, os resultados enconrtam-se aquém do antecipado (apenas se conseguido uma aceleração pouco superior a 2, longe dos \textit{speedups} de 8 previstos).
+	Para tal, foi desenvolvida a utilização de instruções de 128 e 256 bits, sendo que se adoptaram várias estratégias para conseguir esta aceleração sobre o programa original. Os resultados obtidos para a versão de 128 bits encontram-se dentro do esperado (\textit{speedup} próximo de 4), mas, para a versão de 256 bits, os resultados encontram-se aquém do antecipado (apenas se conseguido uma aceleração pouco superior a 2, longe dos \textit{speedups} de 8 previstos).
 	
 	Em suma, o grupo conseguiu por em prática alguns conceitos acerca da paralelização e aceleração de um programa.
 
