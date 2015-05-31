@@ -51,6 +51,9 @@
 	\pagenumbering{arabic}
 	\setcounter{page}{1}
 	
+	\section{\textit{Abstract}}
+	
+	A paralelização e aceleração de um programa é algo fundamental no que toca ao desenvolvimento de algoritmos de computação. O aumento constante na quantidade de informação e dados faz com que tenha que haver uma preocupação na descodificação e computação desses mesmos dados de forma a que seja possível a obtenção de resultados em tempo útil. Desta forma, a computação paralela e aceleração de um programa é cada vez mais um problema com mais interesse e utilidade. Esta aceleração pode ser feita de diversas maneiras, sendo que aqui se procura a utilização de instruções de processamento vectorial para consegui-la, aplicadas a uma função de \textit{smoothing} para a obtenção de um sinal filtrado do seu ruído, possivelmente resultante da amostragem de sinal.
 	
 	
 	\section{Introdução}
@@ -248,11 +251,18 @@ void sse128_smoothing_simple(float *x, float *y, float *res, int len) {
 	 Aquando da demonstração, os resultados de \textit{speedup} obtidos eram muito inferiores ao esperado (estando-se a obter valores de speedup próximos de 1). Contudo, após uma análise mais detalhada sobre o funcionamento de instruções vectoriais, verificou-se que, apesar da não se estar a usar a porção de código correspondente ao uso de instruções de processamento vectorial para 256 bits, o facto de existir esta porção de código fazia com que o compilador agendasse mudanças de modo entre o processamento de 128 bits e o de 256 bits, o que atrasava imenso a execução do programa. Como tal separam-se estas duas componentes de processamento em dois programas distintos. Esta simples mudança fez com que, ao usar as instruções de processamento de 128 bits, se conseguisse atingir resultados de \textit{speedup} compatíveis com os esperados. Num site sobre programação de xadrez\footnote{\url{https://chessprogramming.wikispaces.com/AVX}} encontrou-se a seguinte referência a este problema:
 	 
 	 \begin{quote}
-	  Intel strongly advises against mixing SSE 128-bit instructions and AVX 256-bit instructions, as this ``mode-switching'' can cost upwards of 70 clock cycles. However, mixing SSE 128-bit and AVX 128-bit is okay, as is mixing AVX 128-bit and AVX 256-bit.
+	  ``Intel strongly advises against mixing SSE 128-bit instructions and AVX 256-bit instructions, as this ``mode-switching'' can cost upwards of 70 clock cycles. However, mixing SSE 128-bit and AVX 128-bit is okay, as is mixing AVX 128-bit and AVX 256-bit.''
 	 \end{quote}
 	   
 
 	
 	\section{Conclusão}
+
+	Com esta actividade experimental o grupo conseguiu cumprir o objectivo de acelerar o programa proposto. Através da utilização de instruções de processamento vectorial conseguiu-se filtrar todo o ruído de um sinal, obtendo-se uma função aproximada deste mesmo sinal (\textit{smoothing}).
+	
+	Para tal, foi desenvolvida a utilização de instruções de 128 e 256 bits, sendo que se adoptaram várias estratégias para conseguir esta aceleração sobre o programa original. Os resultados obtidos para a versão de 128 bits encontram-se dentro do esperado (\textit{speedup} próximo de 4), mas, para a versão de 256 bits, os resultados enconrtam-se aquém do antecipado (apenas se conseguido uma aceleração pouco superior a 2, longe dos \textit{speedups} de 8 previstos).
+	
+	Em suma, o grupo conseguiu por em prática alguns conceitos acerca da paralelização e aceleração de um programa.
+
 
 \end{document}
