@@ -204,6 +204,87 @@ void sse256_smoothing_unroll2(float *x, float *y, float *res, int len)
 }
 
 
+void sse256_smoothing_unroll3(float *x, float *y, float *res, int len)
+{
+	float *xi, *xj, *yj;
+	float *aux = (float*) aligned_malloc(8*sizeof(float));
+	float sumAtot, sumBtot, s = 2*_SMOOTH*_SMOOTH;
+
+	__m256 divisor = _mm256_div_ps(_mm256_set_ps(1,1,1,1,1,1,1,1), _mm256_broadcast_ss(&s));
+	__m256 sumA, sumB, sumA_1, sumB_1, sumA_2, sumB_2;
+	__m256 exponential, exponential_1, exponential_2;
+	__m256 cache, cache_1, cache_2;
+
+
+	for(xi=x; xi < x+len; xi++, res++)
+	{
+		sumA = sumB = _mm256_setzero_ps();
+		sumA_1 = sumB_1 = _mm256_setzero_ps();
+		sumA_2 = sumB_2 = _mm256_setzero_ps();
+
+		for(xj=x, yj=y; xj < x+len; xj+=24, yj+=24)
+		{
+			// e^[(-(xi-xj)^2) / (2*smoothing^2)]
+			cache = _mm256_sub_ps(_mm256_broadcast_ss(xi), _mm256_load_ps(xj));
+			cache_1 = _mm256_sub_ps(_mm256_broadcast_ss(xi), _mm256_load_ps(xj+8));
+			cache_2 = _mm256_sub_ps(_mm256_broadcast_ss(xi), _mm256_load_ps(xj+16));
+
+			exponential = _mm256_exp_ps(
+					_mm256_mul_ps(
+						_mm256_sub_ps(_mm256_setzero_ps(),
+							_mm256_mul_ps(
+								cache,
+								cache
+								)), divisor));
+
+			sumB = _mm256_add_ps(sumB, exponential);
+			sumA = _mm256_add_ps(sumA, _mm256_mul_ps(_mm256_load_ps(yj), exponential));
+
+
+			exponential_1 = _mm256_exp_ps(
+					_mm256_mul_ps(
+						_mm256_sub_ps(_mm256_setzero_ps(),
+							_mm256_mul_ps(
+								cache_1,
+								cache_1
+								)), divisor));
+
+			sumB_1 = _mm256_add_ps(sumB_1, exponential);
+			sumA_1 = _mm256_add_ps(sumA_1, _mm256_mul_ps(_mm256_load_ps(yj+8), exponential_1));
+
+
+			exponential_2 = _mm256_exp_ps(
+					_mm256_mul_ps(
+						_mm256_sub_ps(_mm256_setzero_ps(),
+							_mm256_mul_ps(
+								cache_2,
+								cache_2
+								)), divisor));
+
+			sumB_2 = _mm256_add_ps(sumB_2, exponential);
+			sumA_2 = _mm256_add_ps(sumA_2, _mm256_mul_ps(_mm256_load_ps(yj+16), exponential_2));
+		}
+		
+		sumA = _mm256_add_ps(sumA, sumA_2);
+		sumB = _mm256_add_ps(sumB, sumB_2);
+
+		sumA = _mm256_add_ps(sumA, sumA_1);
+		sumB = _mm256_add_ps(sumB, sumB_1);
+		
+		// horizontaly add sumA and sumB
+		_mm256_store_ps(aux, sumA);
+		sumAtot = aux[0] + aux[1] + aux[2] + aux[3] + aux[4] + aux[5] + aux[6] + aux[7];
+
+		_mm256_store_ps(aux, sumB);
+		sumBtot = aux[0] + aux[1] + aux[2] + aux[3] + aux[4] + aux[5] + aux[6] + aux[7];
+
+		*res = sumAtot/sumBtot;
+	}
+
+	aligned_free(aux);
+}
+
+
 void sse256_smoothing_unroll4(float *x, float *y, float *res, int len)
 {
 	float *xi, *xj, *yj;
@@ -527,18 +608,18 @@ void smoothing_speedup(long long len,long long iters, double *timeVector){
 	write_results(name,x,y,res,len);
 	
 
-//	/* WARM UP CACHE FOR SSE128 unroll3 CASE */
-//	sse128_smoothing_unroll3(x,y,res,len);
-//
-//	/* COMPUTE AVERAGE TIME FOR SSE128 unroll3 CASE */
-//	tStart = PAPI_get_real_usec();
-//	for (i=0; i<iters; i++)
-//		sse128_smoothing_unroll3(x,y,res,len);
-//	tEnd = PAPI_get_real_usec();
-//	timeVector[3] = ((double)(tEnd - tStart)) / iters;
-//
-//	sprintf(name,"128_unroll3_%llu.csv",len);
-//	write_results(name,x,y,res,len);
+	/* WARM UP CACHE FOR SSE256 unroll3 CASE */
+	sse256_smoothing_unroll3(x,y,res,len);
+
+	/* COMPUTE AVERAGE TIME FOR SSE256 unroll3 CASE */
+	tStart = PAPI_get_real_usec();
+	for (i=0; i<iters; i++)
+		sse256_smoothing_unroll3(x,y,res,len);
+	tEnd = PAPI_get_real_usec();
+	timeVector[3] = ((double)(tEnd - tStart)) / iters;
+
+	sprintf(name,"256_unroll3_%llu.csv",len);
+	write_results(name,x,y,res,len);
 
 
 	/* WARM UP CACHE FOR SSE256 unroll4 CASE */
